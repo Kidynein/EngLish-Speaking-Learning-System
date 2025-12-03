@@ -8,7 +8,7 @@ function Navbar() {
   return (
     <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur">
       <div className="mx-auto max-w-6xl flex items-center justify-between px-4 py-3">
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/dashboard" className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-xl bg-cyan-500 flex items-center justify-center font-bold text-slate-950">
             E
           </div>

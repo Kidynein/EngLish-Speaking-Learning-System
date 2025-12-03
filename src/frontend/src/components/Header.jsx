@@ -5,7 +5,7 @@ const Header = () => {
     <header className="bg-white py-4 px-6 shadow-sm sticky top-0 z-50">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         {/* Logo Area */}
-        <Link to="/" className="flex items-center gap-3 no-underline">
+        <Link to="/dashboard" className="flex items-center gap-3 no-underline">
           <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 font-bold">
             E
           </div>
@@ -18,7 +18,7 @@ const Header = () => {
         <nav className="hidden md:flex gap-8 font-medium">
           {/* NavLink giúp tự động highlight menu đang active */}
           <NavLink
-            to="/"
+            to="/dashboard"
             className={({ isActive }) =>
               isActive
                 ? "text-green-600 font-bold"
