@@ -5,4 +5,5 @@ export { default as SignUpPage } from "./SignUpPage";
 export { default as LoginPage } from "./LoginPage";
 export { default as ForgotPasswordPage } from "./ForgotPasswordPage";
 export { default as DashboardPage } from "./DashboardPage";
+export { default as LandingPage } from "./LandingPage";
 

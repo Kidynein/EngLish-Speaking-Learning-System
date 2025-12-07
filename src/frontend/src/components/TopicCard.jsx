@@ -1,6 +1,6 @@
 function TopicCard({ title, percent, emoji, color }) {
   return (
-    <div className="group relative bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg hover:border-green-200/50 transition-all duration-300 overflow-hidden">
+    <div className="group relative bg-emerald-50 border border-gray-200 rounded-xl p-6 hover:shadow-lg hover:border-green-200/50 transition-all duration-300 overflow-hidden">
       {/* Background gradient overlay */}
       <div
         className={`absolute inset-0 opacity-0 group-hover:opacity-5 bg-gradient-to-br ${color} transition-opacity duration-300`}
