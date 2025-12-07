@@ -48,28 +48,24 @@ function SignupPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left: Hero Section - Green Background */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-green-400 via-green-300 to-green-200 flex-col items-center justify-center p-8">
-        <div className="text-center space-y-6 max-w-md">
-          <div className="w-64 h-64 bg-white/30 rounded-3xl flex items-center justify-center shadow-lg">
-            <img 
-              src="/hero-image.jpg" 
-              alt="Learning" 
-              className="w-full h-full object-cover rounded-3xl"
-            />
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-green-700 tracking-tight">
-            BROADEN YOUR HORIZON
-          </h1>
-          <p className="text-green-700/80 text-sm leading-relaxed">
-            Practice pronunciation, improve fluency, and gain confidence in English speaking with AI-powered feedback.
-          </p>
+      {/* Left: Illustration Section - Green Background */}
+      <div className="hidden lg:flex lg:w-1/2 bg-emerald-100 flex-col items-center justify-center p-12">
+        <div className="w-full max-w-lg">
+          <img
+            src="/assets/auth_illustration.png"
+            alt="Start Learning"
+            className="w-full h-auto object-contain drop-shadow-2xl"
+          />
+        </div>
+        <div className="mt-12 text-center">
+          <h2 className="text-3xl font-bold text-green-900 mb-4">Start Your Journey</h2>
+          <p className="text-green-700 text-lg">Create an account to access personalized lessons and AI feedback.</p>
         </div>
       </div>
 
-      {/* Right: Signup Card Section - White Background */}
-      <div className="w-full lg:w-1/2 bg-white flex flex-col items-center justify-center p-4 md:p-8">
-        <div className="w-full max-w-md">
+      {/* Right: Signup Card Section - Pale Green Background */}
+      <div className="w-full lg:w-1/2 bg-emerald-100 flex flex-col items-center justify-center p-4 md:p-8">
+        <div className="w-full max-w-md bg-emerald-50 rounded-2xl shadow-lg p-8">
           {/* Signup Card */}
           <div className="space-y-6">
             <div>
@@ -175,14 +171,14 @@ function SignupPage() {
             {/* OAuth Buttons */}
             <div className="grid grid-cols-2 gap-3">
               {/* Google Sign-Up Button */}
-              <button 
+              <button
                 type="button"
                 className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
               >
-                <svg 
-                  version="1.1" 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  viewBox="0 0 48 48" 
+                <svg
+                  version="1.1"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 48 48"
                   className="w-5 h-5"
                 >
                   <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
@@ -195,16 +191,16 @@ function SignupPage() {
               </button>
 
               {/* Facebook Sign-Up Button */}
-              <button 
+              <button
                 type="button"
                 className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
               >
-                <svg 
-                  className="w-5 h-5" 
-                  fill="#1877F2" 
+                <svg
+                  className="w-5 h-5"
+                  fill="#1877F2"
                   viewBox="0 0 24 24"
                 >
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                 </svg>
                 <span>Facebook</span>
               </button>
@@ -212,8 +208,8 @@ function SignupPage() {
 
             <p className="text-center text-sm text-gray-600">
               Already have an account?{" "}
-              <Link 
-                to="/login" 
+              <Link
+                to="/login"
                 className="font-semibold text-green-600 hover:text-green-700"
               >
                 Log in

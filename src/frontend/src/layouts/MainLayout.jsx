@@ -3,7 +3,7 @@ import Header from "../components/Header";
 
 const MainLayout = () => {
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
+    <div className="min-h-screen bg-emerald-100 font-sans">
       <Header />
       <main className="max-w-6xl mx-auto px-4 py-8">
         <Outlet />

@@ -4,7 +4,7 @@ import TopicCard from "../components/TopicCard.jsx";
 
 function DashboardPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
+    <div className="min-h-screen bg-emerald-100">
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
         {/* Welcome Section */}
         <section className="mb-12 space-y-4">
@@ -55,7 +55,7 @@ function DashboardPage() {
                 Choose a Topic to Practice
               </h2>
             </div>
-            
+
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

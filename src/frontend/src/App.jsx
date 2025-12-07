@@ -8,13 +8,14 @@ import {
   LoginPage,
   ForgotPasswordPage,
   DashboardPage,
+  LandingPage,
 } from "./pages";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
