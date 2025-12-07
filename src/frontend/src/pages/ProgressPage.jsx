@@ -17,7 +17,7 @@ import {
 } from "recharts";
 
 function ProgressPage() {
-  const userName = "Sarah";
+  //const userName = "Sarah";
 
   const weeklyData = [
     { day: "Mon", score: 72 },
@@ -54,8 +54,8 @@ function ProgressPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
-      
+    <div className="min-h-screen bg-emerald-100">
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="mb-12">
@@ -65,22 +65,22 @@ function ProgressPage() {
 
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-12">
-          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+          <div className="bg-emerald-50 rounded-xl p-6 border border-gray-200 shadow-sm">
             <h3 className="text-sm font-semibold text-gray-600 mb-2">Total Minutes</h3>
             <div className="text-3xl font-bold text-green-600">650</div>
             <p className="text-xs text-gray-500 mt-2">+50 min this week</p>
           </div>
-          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+          <div className="bg-emerald-50 rounded-xl p-6 border border-gray-200 shadow-sm">
             <h3 className="text-sm font-semibold text-gray-600 mb-2">Sessions</h3>
             <div className="text-3xl font-bold text-green-600">80</div>
             <p className="text-xs text-gray-500 mt-2">Average 12 per week</p>
           </div>
-          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+          <div className="bg-emerald-50 rounded-xl p-6 border border-gray-200 shadow-sm">
             <h3 className="text-sm font-semibold text-gray-600 mb-2">Average Score</h3>
             <div className="text-3xl font-bold text-green-600">80%</div>
             <p className="text-xs text-gray-500 mt-2">+5% from last month</p>
           </div>
-          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+          <div className="bg-emerald-50 rounded-xl p-6 border border-gray-200 shadow-sm">
             <h3 className="text-sm font-semibold text-gray-600 mb-2">Streak</h3>
             <div className="text-3xl font-bold text-green-600">15</div>
             <p className="text-xs text-gray-500 mt-2">Days in a row</p>
@@ -90,7 +90,7 @@ function ProgressPage() {
         {/* Charts Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
           {/* Weekly Performance */}
-          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+          <div className="bg-emerald-50 rounded-xl p-6 border border-gray-200 shadow-sm">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Weekly Performance</h3>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={weeklyData}>
@@ -98,11 +98,11 @@ function ProgressPage() {
                 <XAxis dataKey="day" stroke="#6b7280" />
                 <YAxis domain={[0, 100]} stroke="#6b7280" />
                 <Tooltip />
-                <Line 
-                  type="monotone" 
-                  dataKey="score" 
-                  stroke="#10b981" 
-                  strokeWidth={2} 
+                <Line
+                  type="monotone"
+                  dataKey="score"
+                  stroke="#10b981"
+                  strokeWidth={2}
                   activeDot={{ r: 8 }}
                 />
               </LineChart>
@@ -110,26 +110,26 @@ function ProgressPage() {
           </div>
 
           {/* Topic Performance */}
-          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+          <div className="bg-emerald-50 rounded-xl p-6 border border-gray-200 shadow-sm">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Topic Performance</h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={topicPerformance}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis 
-                  dataKey="topic" 
-                  angle={-45} 
-                  textAnchor="end" 
-                  height={80} 
-                  stroke="#6b7280" 
+                <XAxis
+                  dataKey="topic"
+                  angle={-45}
+                  textAnchor="end"
+                  height={80}
+                  stroke="#6b7280"
                 />
-                <YAxis 
-                  domain={[0, 100]} 
-                  stroke="#6b7280" 
+                <YAxis
+                  domain={[0, 100]}
+                  stroke="#6b7280"
                 />
                 <Tooltip />
-                <Bar 
-                  dataKey="score" 
-                  fill="#10b981" 
+                <Bar
+                  dataKey="score"
+                  fill="#10b981"
                   radius={[4, 4, 0, 0]}
                 />
               </BarChart>
@@ -137,7 +137,7 @@ function ProgressPage() {
           </div>
 
           {/* Skills Radar */}
-          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+          <div className="bg-emerald-50 rounded-xl p-6 border border-gray-200 shadow-sm">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Skills Breakdown</h3>
             <ResponsiveContainer width="100%" height={300}>
               <RadarChart data={radarData}>
@@ -157,7 +157,7 @@ function ProgressPage() {
           </div>
 
           {/* Monthly Activity */}
-          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+          <div className="bg-emerald-50 rounded-xl p-6 border border-gray-200 shadow-sm">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Monthly Activity</h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={monthlyStats}>
@@ -167,18 +167,18 @@ function ProgressPage() {
                 <YAxis yAxisId="right" orientation="right" stroke="#6b7280" />
                 <Tooltip />
                 <Legend />
-                <Bar 
-                  yAxisId="left" 
-                  dataKey="minutes" 
-                  fill="#10b981" 
-                  name="Minutes" 
+                <Bar
+                  yAxisId="left"
+                  dataKey="minutes"
+                  fill="#10b981"
+                  name="Minutes"
                   radius={[4, 4, 0, 0]}
                 />
-                <Bar 
-                  yAxisId="right" 
-                  dataKey="sessions" 
-                  fill="#34d399" 
-                  name="Sessions" 
+                <Bar
+                  yAxisId="right"
+                  dataKey="sessions"
+                  fill="#34d399"
+                  name="Sessions"
                   radius={[4, 4, 0, 0]}
                 />
               </BarChart>
@@ -187,7 +187,7 @@ function ProgressPage() {
         </div>
 
         {/* Detailed Topic Performance */}
-        <div className="bg-white rounded-xl p-8 border border-gray-200 shadow-sm">
+        <div className="bg-emerald-50 rounded-xl p-8 border border-gray-200 shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900 mb-6">Detailed Topic Analysis</h3>
           <div className="space-y-4">
             {topicPerformance.map((topic) => (
