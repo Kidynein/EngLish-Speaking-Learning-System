@@ -9,6 +9,7 @@ import {
   ForgotPasswordPage,
   DashboardPage,
   LandingPage,
+  PracticePage,
 } from "./pages";
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
           <Route path="/home" element={<HomePage />} />
 
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/practice" element={<PracticePage />} />
           <Route path="/my-progress" element={<ProgressPage />} />
           <Route path="/history" element={<HistoryPage />} />
         </Route>
