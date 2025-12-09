@@ -1,8 +1,11 @@
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header.jsx";
 import StatCard from "../components/StatCard.jsx";
 import TopicCard from "../components/TopicCard.jsx";
 
 function DashboardPage() {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-emerald-100">
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
@@ -110,7 +113,10 @@ function DashboardPage() {
             Try our random practice mode to test your skills with sentences
             at your current level.
           </p>
-          <button className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-3 text-base font-semibold text-white hover:from-green-700 hover:to-emerald-700 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl">
+          <button
+            onClick={() => navigate("/practice")}
+            className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-3 text-base font-semibold text-white hover:from-green-700 hover:to-emerald-700 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl"
+          >
             Start Random Practice
           </button>
         </section>
