@@ -10,7 +10,7 @@ class User {
             email: row.email,
             role: row.role,
             avatarUrl: row.avatar_url,
-            passwordHash: row.password_hash, // Có thể filter bỏ field này ở Controller nếu cần
+            passwordHash: row.password_hash,
             createdAt: row.created_at,
             updatedAt: row.updated_at
         };
