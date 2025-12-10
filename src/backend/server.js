@@ -14,3 +14,5 @@ app.listen(PORT, () => {
     console.log(`   - Exercise Attempts: POST /api/exercise-attempts`);
     console.log(`   - User Stats: GET /api/user-stats`);
 });
+
+
