@@ -5,6 +5,12 @@ require('dotenv').config();
 
 // Import routes
 const topicRoutes = require('./routes/topicRoutes');
+const exerciseRoutes = require('./routes/exerciseRoutes');
+const lessonRoutes = require('./routes/lessonRoutes');
+const practiceSessionRoutes = require('./routes/practiceSessionRoutes');
+const exerciseAttemptRoutes = require('./routes/exerciseAttemptRoutes');
+const userStatsRoutes = require('./routes/userStatsRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 
@@ -23,7 +29,12 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/topics', topicRoutes);
-
+app.use('/api/exercises', exerciseRoutes)
+app.use('/api/lessons', lessonRoutes);
+app.use('/api/practice-sessions', practiceSessionRoutes);
+app.use('/api/exercise-attempts', exerciseAttemptRoutes);
+app.use('/api/user-stats', userStatsRoutes);
+app.use('/api/users', userRoutes);
 
 // 404 handler
 app.use((req, res) => {
