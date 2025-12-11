@@ -15,13 +15,31 @@ class Topic {
         };
     }
 
-    static async getAll(page = 1, limit = 10, isActive = true) {
+    static async getAll(page = 1, limit = 10, isActive = true, userId = null) {
         const limitNum = Number(limit);
         const offset = (Number(page) - 1) * limitNum;
-        
-        let query = 'SELECT * FROM Topics';
+
+        let query = `
+            SELECT t.*, 
+            (
+                SELECT COUNT(*) 
+                FROM Exercises e 
+                JOIN Lessons l ON e.lesson_id = l.lesson_id 
+                WHERE l.topic_id = t.topic_id
+            ) as total_exercises,
+            (
+                SELECT COUNT(DISTINCT ea.exercise_id) 
+                FROM ExerciseAttempts ea 
+                JOIN PracticeSessions ps ON ea.session_id = ps.session_id
+                JOIN Exercises e ON ea.exercise_id = e.exercise_id
+                JOIN Lessons l ON e.lesson_id = l.lesson_id
+                WHERE ps.user_id = ? AND l.topic_id = t.topic_id
+            ) as completed_exercises
+            FROM Topics t
+        `;
+
         let countQuery = 'SELECT COUNT(*) as total FROM Topics';
-        const params = [];
+        const params = [userId]; // userId for the subquery
         const countParams = [];
 
         if (isActive !== null) {
@@ -37,8 +55,21 @@ class Topic {
         const [rows] = await pool.query(query, params);
         const [countResult] = await pool.query(countQuery, countParams);
 
+        // Map and calculate percentage
+        const topics = rows.map(row => {
+            const model = this._mapToModel(row);
+            // Calculate progress
+            const total = row.total_exercises || 0;
+            const completed = row.completed_exercises || 0;
+            // Avoid division by zero
+            model.progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+            // Debug info (optional, remove in prod)
+            model.stats = { total, completed };
+            return model;
+        });
+
         return {
-            topics: rows.map(this._mapToModel),
+            topics,
             total: countResult[0].total,
             page: Number(page),
             limit: limitNum
@@ -81,7 +112,7 @@ class Topic {
 
         values.push(topicId);
         const query = `UPDATE Topics SET ${updates.join(', ')}, updated_at = NOW() WHERE Topic_id = ?`;
-        
+
         const [result] = await pool.query(query, values);
         return result.affectedRows > 0;
     }

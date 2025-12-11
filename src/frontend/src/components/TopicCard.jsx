@@ -1,4 +1,4 @@
-function TopicCard({ title, percent, emoji, color }) {
+function TopicCard({ title, percent, emoji, color, onClick }) {
   return (
     <div className="group relative bg-emerald-50 border border-gray-200 rounded-xl p-6 hover:shadow-lg hover:border-green-200/50 transition-all duration-300 overflow-hidden">
       {/* Background gradient overlay */}
@@ -24,7 +24,7 @@ function TopicCard({ title, percent, emoji, color }) {
 
         {/* Progress Bar */}
         <div className="space-y-2">
-          <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div className="w-full h-2 bg-emerald-100 rounded-full overflow-hidden">
             <div
               className={`h-full bg-gradient-to-r ${color} transition-all duration-500`}
               style={{ width: `${percent}%` }}
@@ -35,7 +35,8 @@ function TopicCard({ title, percent, emoji, color }) {
 
         {/* Start Button */}
         <button
-          className={`w-full mt-4 py-2.5 px-4 bg-gradient-to-r ${color} text-white font-semibold rounded-lg hover:shadow-md active:scale-95 transition-all duration-200`}
+          onClick={onClick}
+          className={`w-full mt-4 py-2.5 px-4 bg-gradient-to-r ${color} text-white font-semibold rounded-lg hover:shadow-md hover:brightness-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 transition-all duration-200`}
         >
           Start
         </button>
