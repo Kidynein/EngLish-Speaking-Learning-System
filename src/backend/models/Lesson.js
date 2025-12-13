@@ -18,8 +18,8 @@ class Lesson {
         const limitNum = Number(limit);
         const offset = (Number(page) - 1) * limitNum;
 
-        const [rows] = await pool.query('SELECT * FROM lessons LIMIT ? OFFSET ?', [limitNum, offset]);
-        const [countResult] = await pool.query('SELECT COUNT(*) as total FROM lessons');
+        const [rows] = await pool.query('SELECT * FROM Lessons LIMIT ? OFFSET ?', [limitNum, offset]);
+        const [countResult] = await pool.query('SELECT COUNT(*) as total FROM Lessons');
 
         return {
             lessons: rows.map(this._mapToModel),
@@ -34,11 +34,11 @@ class Lesson {
         const offset = (Number(page) - 1) * limitNum;
 
         const [rows] = await pool.query(
-            'SELECT * FROM lessons WHERE topic_id = ? LIMIT ? OFFSET ?',
+            'SELECT * FROM Lessons WHERE topic_id = ? LIMIT ? OFFSET ?',
             [topicId, limitNum, offset]
         );
         const [countResult] = await pool.query(
-            'SELECT COUNT(*) as total FROM lessons WHERE topic_id = ?',
+            'SELECT COUNT(*) as total FROM Lessons WHERE topic_id = ?',
             [topicId]
         );
 
@@ -51,13 +51,13 @@ class Lesson {
     }
 
     static async findById(lessonId) {
-        const [rows] = await pool.query('SELECT * FROM lessons WHERE lesson_id = ?', [lessonId]);
+        const [rows] = await pool.query('SELECT * FROM Lessons WHERE lesson_id = ?', [lessonId]);
         return this._mapToModel(rows[0]);
     }
 
     static async create({ topicId, title, description, orderIndex }) {
         const [result] = await pool.query(
-            'INSERT INTO lessons (topic_id, title, description, order_index) VALUES (?, ?, ?, ?)',
+            'INSERT INTO Lessons (topic_id, title, description, order_index) VALUES (?, ?, ?, ?)',
             [topicId, title, description, orderIndex]
         );
         return result.insertId;
@@ -83,14 +83,14 @@ class Lesson {
         if (updates.length === 0) return false;
 
         values.push(lessonId);
-        const query = `UPDATE lessons SET ${updates.join(', ')}, updated_at = NOW() WHERE lesson_id = ?`;
-        
+        const query = `UPDATE Lessons SET ${updates.join(', ')}, updated_at = NOW() WHERE lesson_id = ?`;
+
         const [result] = await pool.query(query, values);
         return result.affectedRows > 0;
     }
 
     static async delete(lessonId) {
-        const [result] = await pool.query('DELETE FROM lessons WHERE lesson_id = ?', [lessonId]);
+        const [result] = await pool.query('DELETE FROM Lessons WHERE lesson_id = ?', [lessonId]);
         return result.affectedRows > 0;
     }
 }

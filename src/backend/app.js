@@ -28,6 +28,11 @@ app.get('/', (req, res) => {
     res.json({ status: 'OK', message: 'Server is running' });
 });
 
+const authRoutes = require('./routes/authRoutes');
+
+// ... (existing imports)
+
+app.use('/api/auth', authRoutes);
 app.use('/api/topics', topicRoutes);
 app.use('/api/exercises', exerciseRoutes)
 app.use('/api/lessons', lessonRoutes);
@@ -35,6 +40,7 @@ app.use('/api/practice-sessions', practiceSessionRoutes);
 app.use('/api/exercise-attempts', exerciseAttemptRoutes);
 app.use('/api/user-stats', userStatsRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/scoring', require('./routes/scoringRoutes'));
 
 // 404 handler
 app.use((req, res) => {

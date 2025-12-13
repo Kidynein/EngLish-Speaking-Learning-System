@@ -8,7 +8,8 @@ exports.getAllTopics = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const isActive = req.query.isActive === 'true' ? true : (req.query.isActive === 'false' ? false : null);
 
-        const result = await Topic.getAll(page, limit, isActive);
+        const userId = req.user?.userId || null;
+        const result = await Topic.getAll(page, limit, isActive, userId);
         successResponse(res, 200, 'Topics retrieved', result);
     } catch (error) {
         errorResponse(res, 500, 'Failed to retrieve topics', error.message);
@@ -32,7 +33,7 @@ exports.createTopic = async (req, res) => {
 
         // Destructuring để truyền object vào Model
         const { name, description, thumbnailUrl, difficultyLevel } = req.body;
-        
+
         const topicId = await Topic.create({ name, description, thumbnailUrl, difficultyLevel });
         const topic = await Topic.findById(topicId);
 
@@ -48,7 +49,7 @@ exports.updateTopic = async (req, res) => {
         const { name, description, thumbnailUrl, difficultyLevel, isActive } = req.body;
 
         const updated = await Topic.update(id, { name, description, thumbnailUrl, difficultyLevel, isActive });
-        
+
         if (!updated) return errorResponse(res, 400, 'No valid fields to update or Topic not found');
 
         const updatedTopic = await Topic.findById(id);
