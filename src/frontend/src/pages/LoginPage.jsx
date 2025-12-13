@@ -1,12 +1,51 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import authService from "../services/auth.service";
 
 function LoginPage() {
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // TODO: Add actual authentication logic here
-    navigate("/dashboard");
+    setError("");
+    setLoading(true);
+
+    try {
+      const data = await authService.login(email, password);
+
+      // API returns: { success: true, message: '...', data: { token: '...', user: ... } }
+      const loginData = data.data || {};
+
+      // Save token if present
+      if (loginData.token) {
+        localStorage.setItem("token", loginData.token);
+      } else if (data.token) { // Fallback if structure is flat
+        localStorage.setItem("token", data.token);
+      } else if (data.accessToken) { // fallback check
+        localStorage.setItem("token", data.accessToken);
+      }
+
+      // Save user info
+      if (loginData.user) {
+        localStorage.setItem("user", JSON.stringify(loginData.user));
+      } else if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+
+      navigate("/dashboard");
+    } catch (err) {
+      // Error handling is partly done in api.js (toast), but we set local error state too if needed
+      // or rely on toast. Let's keep a generic message here if API doesn't return one.
+      console.error("Login failed:", err);
+      // If api.js handles toasts, we might not need to set error strictly, but good for UI feedback on form
+      setError("Login failed. Please check your account information.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,6 +79,12 @@ function LoginPage() {
               </p>
             </div>
 
+            {error && (
+              <div className="rounded-lg bg-red-50 border border-red-200 p-3">
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            )}
+
             <form className="space-y-4" onSubmit={handleLogin}>
               <div className="space-y-2">
                 <label
@@ -51,8 +96,11 @@ function LoginPage() {
                 <input
                   id="email"
                   type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                   placeholder="you@example.com"
+                  required
                 />
               </div>
 
@@ -74,16 +122,20 @@ function LoginPage() {
                 <input
                   id="password"
                   type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                   placeholder="••••••••"
+                  required
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full mt-2 rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-white hover:bg-green-700 transition-colors"
+                disabled={loading}
+                className="w-full mt-2 rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-white hover:bg-green-700 transition-colors disabled:bg-green-400"
               >
-                Sign in
+                {loading ? "Signing in..." : "Sign in"}
               </button>
             </form>
 

@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import authService from "../services/auth.service";
 
 function SignupPage() {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ function SignupPage() {
     confirmPassword: "",
   });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -19,7 +21,7 @@ function SignupPage() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -41,9 +43,31 @@ function SignupPage() {
       return;
     }
 
-    // TODO: API call to register
-    console.log("Signup data:", formData);
-    navigate("/dashboard");
+    setLoading(true);
+    try {
+      await authService.register(
+        formData.fullName,
+        formData.email,
+        formData.password
+      );
+      // Registration successful.
+      // Option 1: Auto login (save token if returned)
+      // Option 2: Redirect to login page
+      // For now, let's redirect to login with a success message or just dashboard if it auto-logs in.
+      // Usually signup just creates account. Let's redirect to login for safety/simplicity unless specified otherwise.
+      // But prompt said "navigate("/dashboard")" in original code.
+      // Let's stick to Dashboard if it returns a token, or Login if not.
+      // actually, let's redirect to Login to force sign in, or Dashboard if we implement token saving here too.
+      // Let's redirect to Login for now to be clear.
+      navigate("/login");
+    } catch (err) {
+      console.error("Signup failed:", err);
+      // Hiển thị lỗi từ backend (ví dụ: Email đã tồn tại)
+      const errorMessage = err.response?.data?.message || err.message || "Registration failed. Please try again.";
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -156,9 +180,10 @@ function SignupPage() {
 
               <button
                 type="submit"
-                className="w-full mt-2 rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-white hover:bg-green-700 transition-colors"
+                disabled={loading}
+                className="w-full mt-2 rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-white hover:bg-green-700 transition-colors disabled:bg-green-400"
               >
-                Create account
+                {loading ? "Creating account..." : "Create account"}
               </button>
             </form>
 

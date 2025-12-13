@@ -17,8 +17,8 @@ class PracticeSession {
         const limitNum = Number(limit);
         const offset = (Number(page) - 1) * limitNum;
 
-        const [rows] = await pool.query('SELECT * FROM practicesessions LIMIT ? OFFSET ?', [limitNum, offset]);
-        const [countResult] = await pool.query('SELECT COUNT(*) as total FROM practicesessions');
+        const [rows] = await pool.query('SELECT * FROM PracticeSessions LIMIT ? OFFSET ?', [limitNum, offset]);
+        const [countResult] = await pool.query('SELECT COUNT(*) as total FROM PracticeSessions');
 
         return {
             sessions: rows.map(this._mapToModel),
@@ -33,11 +33,11 @@ class PracticeSession {
         const offset = (Number(page) - 1) * limitNum;
 
         const [rows] = await pool.query(
-            'SELECT * FROM practicesessions WHERE user_id = ? ORDER BY start_time DESC LIMIT ? OFFSET ?',
+            'SELECT * FROM PracticeSessions WHERE user_id = ? ORDER BY start_time DESC LIMIT ? OFFSET ?',
             [userId, limitNum, offset]
         );
         const [countResult] = await pool.query(
-            'SELECT COUNT(*) as total FROM practicesessions WHERE user_id = ?',
+            'SELECT COUNT(*) as total FROM PracticeSessions WHERE user_id = ?',
             [userId]
         );
 
@@ -50,13 +50,13 @@ class PracticeSession {
     }
 
     static async findById(sessionId) {
-        const [rows] = await pool.query('SELECT * FROM practicesessions WHERE session_id = ?', [sessionId]);
+        const [rows] = await pool.query('SELECT * FROM PracticeSessions WHERE session_id = ?', [sessionId]);
         return this._mapToModel(rows[0]);
     }
 
     static async create(userId, topicId) {
         const [result] = await pool.query(
-            'INSERT INTO practicesessions (user_id, topic_id, session_score, start_time) VALUES (?, ?, 0, NOW())',
+            'INSERT INTO PracticeSessions (user_id, topic_id, session_score, start_time) VALUES (?, ?, 0, NOW())',
             [userId, topicId]
         );
         return result.insertId;
@@ -81,15 +81,15 @@ class PracticeSession {
         if (updates.length === 0) return false;
 
         values.push(sessionId);
-        const query = `UPDATE practicesessions SET ${updates.join(', ')} WHERE session_id = ?`;
-        
+        const query = `UPDATE PracticeSessions SET ${updates.join(', ')} WHERE session_id = ?`;
+
         const [result] = await pool.query(query, values);
         return result.affectedRows > 0;
     }
 
     static async endSession(sessionId, sessionScore) {
         const [result] = await pool.query(
-            'UPDATE practicesessions SET session_score = ?, end_time = NOW() WHERE session_id = ?',
+            'UPDATE PracticeSessions SET session_score = ?, end_time = NOW() WHERE session_id = ?',
             [sessionScore, sessionId]
         );
         return result.affectedRows > 0;

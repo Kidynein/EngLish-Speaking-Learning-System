@@ -1,6 +1,10 @@
 import { NavLink, Link } from "react-router-dom";
 
 const Header = () => {
+  // Get user from localStorage
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const firstInitial = user.fullName ? user.fullName.charAt(0).toUpperCase() : '?';
+
   return (
     <header className="bg-white py-4 px-6 shadow-sm sticky top-0 z-50">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
@@ -52,7 +56,7 @@ const Header = () => {
         </nav>
         {/* User Avatar */}
         <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-700 font-bold cursor-pointer hover:bg-green-200 transition-colors">
-          S
+          {firstInitial}
         </div>
       </div>
     </header>

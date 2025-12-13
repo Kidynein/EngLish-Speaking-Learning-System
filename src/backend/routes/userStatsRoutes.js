@@ -17,6 +17,7 @@ const practiceTimeValidation = [
 router.get('/top-users', userStatsController.getTopUsers);
 router.post('/add-practice-time', authenticate, practiceTimeValidation, userStatsController.addPracticeTime);
 
+router.get('/', authenticate, userStatsController.getUserStats);
 router.get('/:userId', authenticate, userStatsController.getUserStats);
 router.put('/', authenticate, updateStatsValidation, userStatsController.updateUserStats);
 

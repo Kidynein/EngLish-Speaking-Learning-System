@@ -24,11 +24,11 @@ class Exercise {
 
         // Dùng pool.query trực tiếp
         const [rows] = await pool.query(
-            'SELECT * FROM exercises LIMIT ? OFFSET ?',
+            'SELECT * FROM Exercises LIMIT ? OFFSET ?',
             [limitNum, offset]
         );
-        const [countResult] = await pool.query('SELECT COUNT(*) as total FROM exercises');
-        
+        const [countResult] = await pool.query('SELECT COUNT(*) as total FROM Exercises');
+
         return {
             exercises: rows, // Có thể bọc rows.map(this._mapToModel) nếu muốn
             total: countResult[0].total,
@@ -42,11 +42,11 @@ class Exercise {
         const offset = (Number(page) - 1) * limitNum;
 
         const [rows] = await pool.query(
-            'SELECT * FROM exercises WHERE lesson_id = ? LIMIT ? OFFSET ?',
+            'SELECT * FROM Exercises WHERE lesson_id = ? LIMIT ? OFFSET ?',
             [lessonId, limitNum, offset]
         );
         const [countResult] = await pool.query(
-            'SELECT COUNT(*) as total FROM exercises WHERE lesson_id = ?',
+            'SELECT COUNT(*) as total FROM Exercises WHERE lesson_id = ?',
             [lessonId]
         );
 
@@ -60,7 +60,7 @@ class Exercise {
 
     static async findById(exerciseId) {
         const [rows] = await pool.query(
-            'SELECT * FROM exercises WHERE exercise_id = ?',
+            'SELECT * FROM Exercises WHERE exercise_id = ?',
             [exerciseId]
         );
         return rows[0] || null; // Trả về null nếu không tìm thấy thay vì undefined
@@ -69,9 +69,9 @@ class Exercise {
     static async create(data) {
         // Nhận vào object data thay vì liệt kê từng tham số (Clean Code)
         const { lessonId, contentText, ipaTranscription, referenceAudioUrl, type, orderIndex } = data;
-        
+
         const [result] = await pool.query(
-            'INSERT INTO exercises (lesson_id, content_text, ipa_transcription, reference_audio_url, type, order_index) VALUES (?, ?, ?, ?, ?, ?)',
+            'INSERT INTO Exercises (lesson_id, content_text, ipa_transcription, reference_audio_url, type, order_index) VALUES (?, ?, ?, ?, ?, ?)',
             [lessonId, contentText, ipaTranscription, referenceAudioUrl, type, orderIndex]
         );
         return result.insertId;
@@ -99,14 +99,14 @@ class Exercise {
         if (updates.length === 0) return false;
 
         values.push(exerciseId);
-        const query = `UPDATE exercises SET ${updates.join(', ')}, updated_at = NOW() WHERE exercise_id = ?`;
-        
+        const query = `UPDATE Exercises SET ${updates.join(', ')}, updated_at = NOW() WHERE exercise_id = ?`;
+
         const [result] = await pool.query(query, values);
         return result.affectedRows > 0;
     }
 
     static async delete(exerciseId) {
-        const [result] = await pool.query('DELETE FROM exercises WHERE exercise_id = ?', [exerciseId]);
+        const [result] = await pool.query('DELETE FROM Exercises WHERE exercise_id = ?', [exerciseId]);
         return result.affectedRows > 0;
     }
 }
