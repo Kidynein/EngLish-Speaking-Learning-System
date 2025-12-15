@@ -15,6 +15,11 @@ const userService = {
     getTopUsers: async (limit = 10) => {
         const response = await api.get(`/user-stats/top-users?limit=${limit}`);
         return response.data;
+    },
+
+    getUserProgress: async () => {
+        const response = await api.get("/progress");
+        return response.data;
     }
 };
 
