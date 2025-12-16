@@ -11,26 +11,43 @@ import {
   LandingPage,
   PracticePage,
 } from "./pages";
+import { AuthProvider } from "./context/auth-context";
+import ProtectedRoute from "./components/routes/ProtectedRoute";
+import PublicRoute from "./components/routes/PublicRoute";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route element={<MainLayout />}>
-          <Route path="/home" element={<HomePage />} />
+      <AuthProvider>
+        <Routes>
+          {/* Public Routes - Only for Guests */}
+          <Route element={<PublicRoute />}>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          </Route>
 
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/practice" element={<PracticePage />} />
-          <Route path="/my-progress" element={<ProgressPage />} />
-          <Route path="/history" element={<HistoryPage />} />
-        </Route>
-        {/* 404 - Not Found */}
-        <Route path="*" element={<div className="p-10">404 - Not Found</div>} />
-      </Routes>
+          {/* Protected Routes - Only for Authenticated Users */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<MainLayout />}>
+              <Route path="/home" element={<HomePage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/practice" element={<PracticePage />} />
+              <Route path="/my-progress" element={<ProgressPage />} />
+              <Route path="/history" element={<HistoryPage />} />
+            </Route>
+          </Route>
+
+          {/* Universal/Public Routes */}
+          <Route path="/" element={<LandingPage />} />
+
+          {/* 404 - Not Found */}
+          <Route path="*" element={<div className="p-10">404 - Not Found</div>} />
+        </Routes>
+        <ToastContainer position="top-right" autoClose={3000} />
+      </AuthProvider>
     </BrowserRouter>
   );
 }

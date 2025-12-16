@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import authService from "../services/auth.service";
+import { useAuth } from "../context/AuthContext";
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -8,6 +9,8 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -17,32 +20,22 @@ function LoginPage() {
     try {
       const data = await authService.login(email, password);
 
-      // API returns: { success: true, message: '...', data: { token: '...', user: ... } }
-      const loginData = data.data || {};
 
-      // Save token if present
-      if (loginData.token) {
-        localStorage.setItem("token", loginData.token);
-      } else if (data.token) { // Fallback if structure is flat
-        localStorage.setItem("token", data.token);
-      } else if (data.accessToken) { // fallback check
-        localStorage.setItem("token", data.accessToken);
+      const responseData = data.data || data;
+
+      const token = responseData.token || responseData.accessToken;
+      const user = responseData.user;
+
+      if (token && user) {
+        login(user, token); // Update global AuthContext state
+        // Navigation is handled here explicitly to ensure timing
+        navigate("/dashboard");
+      } else {
+        throw new Error("Invalid response from server");
       }
-
-      // Save user info
-      if (loginData.user) {
-        localStorage.setItem("user", JSON.stringify(loginData.user));
-      } else if (data.user) {
-        localStorage.setItem("user", JSON.stringify(data.user));
-      }
-
-      navigate("/dashboard");
     } catch (err) {
-      // Error handling is partly done in api.js (toast), but we set local error state too if needed
-      // or rely on toast. Let's keep a generic message here if API doesn't return one.
       console.error("Login failed:", err);
-      // If api.js handles toasts, we might not need to set error strictly, but good for UI feedback on form
-      setError("Login failed. Please check your account information.");
+      setError(err.response?.data?.message || "Login failed. Please check your account information.");
     } finally {
       setLoading(false);
     }
