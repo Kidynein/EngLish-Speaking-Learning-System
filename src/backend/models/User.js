@@ -93,6 +93,31 @@ class User {
         );
         return result.affectedRows > 0;
     }
+
+    // Password Reset Methods
+    static async setResetToken(email, resetToken, expiresAt) {
+        const [result] = await pool.query(
+            'UPDATE Users SET reset_token = ?, reset_token_expires = ? WHERE email = ?',
+            [resetToken, expiresAt, email]
+        );
+        return result.affectedRows > 0;
+    }
+
+    static async findByResetToken(resetToken) {
+        const [rows] = await pool.query(
+            'SELECT * FROM Users WHERE reset_token = ? AND reset_token_expires > NOW()',
+            [resetToken]
+        );
+        return this._mapToModel(rows[0]);
+    }
+
+    static async clearResetToken(userId) {
+        const [result] = await pool.query(
+            'UPDATE Users SET reset_token = NULL, reset_token_expires = NULL WHERE user_id = ?',
+            [userId]
+        );
+        return result.affectedRows > 0;
+    }
 }
 
 module.exports = User;
