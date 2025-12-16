@@ -41,6 +41,7 @@ app.use('/api/exercise-attempts', exerciseAttemptRoutes);
 app.use('/api/user-stats', userStatsRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/scoring', require('./routes/scoringRoutes'));
+app.use('/api/progress', require('./routes/progressRoutes'));
 
 // 404 handler
 app.use((req, res) => {

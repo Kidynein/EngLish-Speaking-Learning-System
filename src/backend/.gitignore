@@ -53,3 +53,5 @@ uploads/
 # Testing
 .mocha.env
 test/fixtures/output/
+
+script sql/
