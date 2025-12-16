@@ -25,4 +25,21 @@ routerInstance.post(
     authController.login
 );
 
+routerInstance.post(
+    '/forgot-password',
+    [
+        check('email', 'Please include a valid email').isEmail()
+    ],
+    authController.forgotPassword
+);
+
+routerInstance.post(
+    '/reset-password',
+    [
+        check('token', 'Reset token is required').not().isEmpty(),
+        check('newPassword', 'New password must be 6 or more characters').isLength({ min: 6 })
+    ],
+    authController.resetPassword
+);
+
 module.exports = routerInstance;
