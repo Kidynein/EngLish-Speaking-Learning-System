@@ -2,24 +2,38 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import PracticeSessionLayout from "../components/practice/PracticeSessionLayout";
 import ProgressBar from "../components/practice/ProgressBar";
-import HeroText from "../components/practice/HeroText";
 import RecordButton from "../components/practice/RecordButton";
 import FeedbackSheet from "../components/practice/FeedbackSheet";
-import exerciseService from "../services/exercise.service"; // Add import
-
+import exerciseService from "../services/exercise.service";
 import practiceSessionService from "../services/practiceSession.service";
 import { toast } from "react-toastify";
+
+// Import the new hook and utilities
+import useSpeechRecognition from "../hooks/useSpeechRecognition";
+import { calculateScore, generateFeedback } from "../utils/scoringUtils";
 
 function PracticePage() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { exercises, sessionId } = location.state || {}; // topicId, lessonId also available
+    const { exercises, sessionId } = location.state || {};
 
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [isRecording, setIsRecording] = useState(false);
     const [showFeedback, setShowFeedback] = useState(false);
-    const [feedbackData, setFeedbackData] = useState({ score: 0, feedback: "" });
+    const [feedbackData, setFeedbackData] = useState({ score: 0, feedback: "", wordFeedback: [] });
     const [accumulatedScore, setAccumulatedScore] = useState(0);
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    // Use the speech recognition hook
+    const {
+        isRecording,
+        transcript,
+        interimTranscript,
+        startRecording,
+        stopRecording,
+        resetTranscript,
+        error: speechError,
+        isSupported
+    } = useSpeechRecognition();
 
     // Validate state on mount
     useEffect(() => {
@@ -27,62 +41,100 @@ function PracticePage() {
             toast.error("No exercises found. Returning to dashboard.");
             navigate("/dashboard");
         }
-    }, [exercises, navigate]);
+
+        if (!isSupported) {
+            toast.error("Speech Recognition is not supported in this browser. Please use Chrome, Edge, or Safari.");
+        }
+    }, [exercises, navigate, isSupported]);
+
+    // Show speech errors to user
+    useEffect(() => {
+        if (speechError) {
+            toast.error(speechError);
+        }
+    }, [speechError]);
 
     const currentExercise = exercises && exercises.length > 0 ? exercises[currentIndex] : null;
+    const targetText = currentExercise?.contentText || currentExercise?.content_text || "";
 
     const handleToggleRecording = () => {
         if (!isRecording) {
             // Start recording
-            setIsRecording(true);
-
-            // Simulate recording duration then show feedback automatically for demo
-            // In real app: Stop recording -> Upload Audio -> Get API Response
-            setTimeout(async () => {
-                setIsRecording(false);
-                const randomScore = Math.floor(Math.random() * 20) + 80; // 80-99
-
-                // Accumulate score
-                setAccumulatedScore(prev => prev + randomScore);
-
-                // Save attempt to Backend if session is active
-                if (sessionId && currentExercise) {
-                    try {
-                        await exerciseService.submitAttempt({
-                            sessionId,
-                            exerciseId: currentExercise.id || currentExercise.exercise_id, // ensure ID is correct
-                            userAudioUrl: "https://example.com/audio.mp3", // Mock URL
-                            scoreOverall: randomScore,
-                            scorePronunciation: randomScore,
-                            scoreFluency: randomScore,
-                            scoreConfidence: randomScore,
-                            aiFeedbackJson: JSON.stringify({ feedback: "Great work!" })
-                        });
-                        console.log("Attempt saved successfully");
-                    } catch (err) {
-                        console.error("Failed to save attempt:", err);
-                        // Don't block UI on attempt save failure for now
-                    }
-                }
-
-                setFeedbackData({
-                    score: randomScore,
-                    feedback: randomScore > 90
-                        ? "Excellent pronunciation! Your intonation was very natural."
-                        : "Great job! Try to enunciate the vowels a bit more clearly next time."
-                });
-                setShowFeedback(true);
-            }, 3000);
+            resetTranscript();
+            startRecording();
         } else {
-            // Stop manually
-            setIsRecording(false);
+            // Stop recording and process result
+            stopRecording();
+            processRecording();
         }
+    };
+
+    const processRecording = async () => {
+        setIsProcessing(true);
+
+        // Wait a moment for final transcript to be set
+        setTimeout(async () => {
+            const finalTranscript = transcript || interimTranscript;
+
+            // Calculate scores using the utility function
+            const scoreData = calculateScore(targetText, finalTranscript);
+
+            // Generate feedback message
+            const feedbackMessage = generateFeedback(scoreData);
+
+            // Accumulate score
+            setAccumulatedScore(prev => prev + scoreData.overallScore);
+
+            // Prepare data for backend (map to ERD columns)
+            const attemptData = {
+                sessionId,
+                exerciseId: currentExercise.exercise_id || currentExercise.id,
+                userAudioUrl: null, // We're using Web Speech API, no audio file
+                scoreOverall: scoreData.overallScore,
+                scorePronunciation: scoreData.pronunciationScore,
+                scoreFluency: scoreData.fluencyScore,
+                scoreConfidence: scoreData.confidenceScore,
+                aiFeedbackJson: JSON.stringify({
+                    transcript: finalTranscript,
+                    targetText: targetText,
+                    wordFeedback: scoreData.feedback,
+                    correctWords: scoreData.correctWords,
+                    totalWords: scoreData.wordCount
+                })
+            };
+
+            // Save attempt to Backend if session is active
+            if (sessionId && currentExercise) {
+                try {
+                    await exerciseService.submitAttempt(attemptData);
+                    console.log("Attempt saved successfully");
+                } catch (err) {
+                    console.error("Failed to save attempt:", err);
+                    toast.warning("Failed to save attempt to server");
+                }
+            }
+
+            // Update UI with feedback
+            setFeedbackData({
+                score: scoreData.overallScore,
+                feedback: feedbackMessage,
+                wordFeedback: scoreData.feedback,
+                transcript: finalTranscript,
+                scoreDetails: {
+                    pronunciation: scoreData.pronunciationScore,
+                    fluency: scoreData.fluencyScore,
+                    confidence: scoreData.confidenceScore
+                }
+            });
+            setShowFeedback(true);
+            setIsProcessing(false);
+        }, 500);
     };
 
     const handleNext = async () => {
         // Reset state for next sentence
         setShowFeedback(false);
-        setIsRecording(false);
+        resetTranscript();
 
         if (currentIndex < exercises.length - 1) {
             setCurrentIndex(prev => prev + 1);
@@ -109,17 +161,21 @@ function PracticePage() {
             toast.error("Failed to save session results.");
             navigate("/dashboard");
         }
-    }
+    };
 
     const handleRetry = () => {
         setShowFeedback(false);
+        resetTranscript();
     };
 
-    if (!currentExercise) return null; // Or loading spinner
+    if (!currentExercise) return null;
+
+    // Combine final and interim transcripts for display
+    const displayTranscript = transcript + (interimTranscript ? ' ' + interimTranscript : '');
 
     return (
         <PracticeSessionLayout>
-            {/* Top Bar: Back Button & Progress (Absolute or Flex) */}
+            {/* Top Bar: Back Button & Progress */}
             <div className="absolute top-6 left-0 right-0 px-6 flex items-center justify-between w-full max-w-4xl mx-auto z-20">
                 <Link to="/dashboard" className="text-emerald-700 hover:bg-emerald-100 p-2 rounded-full transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
@@ -129,30 +185,74 @@ function PracticePage() {
                 <div className="flex-1 max-w-xs mx-4">
                     <ProgressBar current={currentIndex + 1} total={exercises.length} />
                 </div>
-                <div className="w-10" /> {/* Spacer for balance */}
+                <div className="w-10" />
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 flex flex-col items-center justify-center gap-12 sm:gap-16 w-full mt-10">
-                <HeroText text={currentExercise.contentText || currentExercise.content_text} />
+            <div className="flex-1 flex flex-col items-center justify-center gap-8 sm:gap-12 w-full mt-10 px-6">
+                {/* Target Sentence Display */}
+                <div className="text-center max-w-3xl">
+                    <h2 className="text-sm uppercase tracking-wider text-emerald-600 font-semibold mb-4">
+                        Read this sentence
+                    </h2>
+                    <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-800 leading-tight">
+                        {targetText}
+                    </p>
+                    {currentExercise.ipaTranscription && (
+                        <p className="text-lg text-gray-500 mt-4 font-mono">
+                            /{currentExercise.ipaTranscription}/
+                        </p>
+                    )}
+                </div>
 
-                <RecordButton
-                    isRecording={isRecording}
-                    onToggle={handleToggleRecording}
-                />
+                {/* Real-time Transcript Display */}
+                {(isRecording || displayTranscript) && (
+                    <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6 max-w-3xl w-full">
+                        <p className="text-xs uppercase tracking-wider text-blue-600 font-semibold mb-2">
+                            You said:
+                        </p>
+                        <p className="text-2xl text-gray-800 min-h-[60px]">
+                            <span className="font-medium">{transcript}</span>
+                            {interimTranscript && (
+                                <span className="text-gray-400 italic"> {interimTranscript}</span>
+                            )}
+                            {isRecording && !displayTranscript && (
+                                <span className="text-gray-400 animate-pulse">Listening...</span>
+                            )}
+                        </p>
+                    </div>
+                )}
 
-                <p className="text-gray-500 font-medium animate-pulse">
-                    {isRecording ? "Listening..." : "Tap microphone to start"}
-                </p>
+                {/* Record Button */}
+                <div className="flex flex-col items-center gap-4">
+                    <RecordButton
+                        isRecording={isRecording}
+                        onToggle={handleToggleRecording}
+                        disabled={isProcessing || !isSupported}
+                    />
+                    <p className="text-gray-500 font-medium">
+                        {isProcessing ? (
+                            <span className="animate-pulse">Processing...</span>
+                        ) : isRecording ? (
+                            "Tap to stop recording"
+                        ) : (
+                            "Tap microphone to start"
+                        )}
+                    </p>
+                </div>
             </div>
 
-            {/* Feedback Overlay */}
+            {/* Feedback Overlay with Word-Level Details */}
             <FeedbackSheet
                 isOpen={showFeedback}
                 score={feedbackData.score}
                 feedback={feedbackData.feedback}
                 onNext={handleNext}
                 onRetry={handleRetry}
+                wordFeedback={feedbackData.wordFeedback}
+                scoreDetails={feedbackData.scoreDetails}
+                transcript={feedbackData.transcript}
+                targetText={targetText}
             />
         </PracticeSessionLayout>
     );
