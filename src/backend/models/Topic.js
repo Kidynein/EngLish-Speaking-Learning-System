@@ -15,7 +15,7 @@ class Topic {
         };
     }
 
-    static async getAll(page = 1, limit = 10, isActive = true, userId = null) {
+    static async getAll(page = 1, limit = 10, isActive = true, userId = null, search = '', level = 'all') {
         const limitNum = Number(limit);
         const offset = (Number(page) - 1) * limitNum;
 
@@ -38,16 +38,51 @@ class Topic {
             FROM Topics t
         `;
 
-        let countQuery = 'SELECT COUNT(*) as total FROM Topics';
+        let countQuery = 'SELECT COUNT(*) as total FROM Topics t';
         const params = [userId]; // userId for the subquery
         const countParams = [];
 
+        // Build WHERE clause
+        const conditions = [];
         if (isActive !== null) {
-            query += ' WHERE is_active = ?';
-            countQuery += ' WHERE is_active = ?';
+            conditions.push('t.is_active = ?');
             params.push(isActive);
             countParams.push(isActive);
         }
+
+        if (search) {
+            // Match start of string OR start of word (space before) in NAME only
+            conditions.push(`(
+                t.name LIKE ? OR t.name LIKE ?
+            )`);
+            const startParam = `${search}%`;
+            const wordParam = `% ${search}%`;
+            params.push(startParam, wordParam);
+            countParams.push(startParam, wordParam);
+        }
+
+        if (level && level !== 'all') {
+            conditions.push('t.difficulty_level = ?');
+            params.push(level);
+            countParams.push(level);
+        }
+
+        if (conditions.length > 0) {
+            const whereClause = ' WHERE ' + conditions.join(' AND ');
+            query += whereClause;
+            countQuery += whereClause;
+        }
+
+        // Sorting logic: In Progress (1) -> Completed (2) -> Not Started (3)
+        // Note: Using aliases in ORDER BY is supported in MySQL
+        query += ` ORDER BY 
+            CASE 
+                WHEN completed_exercises > 0 AND completed_exercises < total_exercises THEN 1 
+                WHEN completed_exercises = total_exercises AND total_exercises > 0 THEN 2 
+                ELSE 3 
+            END ASC, 
+            t.topic_id ASC
+        `;
 
         query += ' LIMIT ? OFFSET ?';
         params.push(limitNum, offset);
