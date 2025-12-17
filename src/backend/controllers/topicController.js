@@ -8,8 +8,17 @@ exports.getAllTopics = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const isActive = req.query.isActive === 'true' ? true : (req.query.isActive === 'false' ? false : null);
 
+        const search = req.query.search || '';
+        const level = req.query.level || 'all';
+
+        // Get userId from authenticated user (required for progress calculation)
         const userId = req.user?.userId || null;
-        const result = await Topic.getAll(page, limit, isActive, userId);
+
+        if (!userId) {
+            console.warn('[topicController] No userId found - progress will show 0% for all topics');
+        }
+
+        const result = await Topic.getAll(page, limit, isActive, userId, search, level);
         successResponse(res, 200, 'Topics retrieved', result);
     } catch (error) {
         errorResponse(res, 500, 'Failed to retrieve topics', error.message);

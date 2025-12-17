@@ -1,4 +1,12 @@
 function TopicCard({ title, percent, emoji, color, onClick }) {
+  // Dynamic color based on progress percentage
+  const getProgressColor = (percent) => {
+    if (percent >= 100) return 'from-green-500 to-emerald-600';     // Completed
+    if (percent >= 50) return 'from-blue-500 to-blue-600';          // In progress
+    if (percent > 0) return 'from-yellow-500 to-orange-500';        // Started
+    return 'from-gray-400 to-gray-500';                             // Not started
+  };
+
   return (
     <div className="group relative bg-emerald-50 border border-gray-200 rounded-xl p-6 hover:shadow-lg hover:border-green-200/50 transition-all duration-300 overflow-hidden">
       {/* Background gradient overlay */}
@@ -11,7 +19,7 @@ function TopicCard({ title, percent, emoji, color, onClick }) {
         <div className="flex items-center justify-between">
           <div className="text-4xl">{emoji}</div>
           <div
-            className={`w-14 h-14 rounded-full bg-gradient-to-br ${color} flex items-center justify-center text-white font-bold text-sm shadow-md group-hover:shadow-lg transition-shadow`}
+            className={`w-14 h-14 rounded-full bg-gradient-to-br ${getProgressColor(percent)} flex items-center justify-center text-white font-bold text-sm shadow-md group-hover:shadow-lg transition-shadow`}
           >
             {percent}%
           </div>

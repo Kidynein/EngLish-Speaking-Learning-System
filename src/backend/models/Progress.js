@@ -34,33 +34,27 @@ class Progress {
 
     // 3. User Skills (Radar Chart)
     static async getUserSkills(userId) {
-        // Get explicit skills from UserSkills table
+        // Calculate dynamic skills from ExerciseAttempts table
         const [rows] = await pool.query(`
-            SELECT skill_name as skill, skill_score as value
-            FROM UserSkills
-            WHERE user_id = ?
-        `, [userId]);
-
-        // Optional: Calculate 'Confidence' from ExerciseAttempts if not in UserSkills
-        // This is a fallback/enhancement
-        const [confidenceRow] = await pool.query(`
-            SELECT AVG(score_confidence) as confidence
+            SELECT 
+                COALESCE(AVG(score_pronunciation), 0) as pronunciation,
+                COALESCE(AVG(score_fluency), 0) as fluency,
+                COALESCE(AVG(score_confidence), 0) as confidence,
+                COALESCE(AVG(score_overall), 0) as overall
             FROM ExerciseAttempts ea
             JOIN PracticeSessions ps ON ea.session_id = ps.session_id
             WHERE ps.user_id = ?
         `, [userId]);
 
-        const skills = [...rows];
+        const data = rows[0];
 
-        // Add calculated confidence if valid
-        if (confidenceRow[0].confidence !== null) {
-            skills.push({
-                skill: 'Confidence',
-                value: Number(confidenceRow[0].confidence)
-            });
-        }
-
-        return skills;
+        // Transform to array format for Radar Chart
+        return [
+            { skill: 'Pronunciation', value: Number(data.pronunciation) },
+            { skill: 'Fluency', value: Number(data.fluency) },
+            { skill: 'Confidence', value: Number(data.confidence) },
+            { skill: 'Overall', value: Number(data.overall) }
+        ];
     }
 
     // 4. Monthly Activity: Minutes & Sessions per Week (Current Month)

@@ -14,6 +14,15 @@ const exerciseService = {
     },
 
     /**
+     * Get random exercises
+     * @returns {Promise<Array>} List of random exercises
+     */
+    getRandomExercises: async () => {
+        const response = await api.get(`${EXERCISE_URL}/random`);
+        return response.data?.data || [];
+    },
+
+    /**
      * Submit an exercise attempt
      * @param {object} attemptData - { sessionId, exerciseId, scoreOverall, ... }
      * @returns {Promise<object>} Created attempt

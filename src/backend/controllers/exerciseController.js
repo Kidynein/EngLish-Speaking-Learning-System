@@ -11,6 +11,16 @@ exports.getAllExercises = async (req, res) => {
     }
 };
 
+
+exports.getRandomExercises = async (req, res) => {
+    try {
+        const result = await Exercise.getRandom(5);
+        successResponse(res, 200, 'Random exercises retrieved', result);
+    } catch (error) {
+        errorResponse(res, 500, 'Failed to retrieve random exercises', error.message);
+    }
+};
+
 exports.getExercisesByLesson = async (req, res) => {
     try {
         const result = await Exercise.getByLesson(req.params.lessonId, req.query.page, req.query.limit);
