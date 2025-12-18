@@ -9,7 +9,8 @@ router.put('/profile', authenticate, userController.updateProfile);
 
 router.get('/', userController.getAllUsers);
 // Admin routes (Quản lý user khác)
-// router.get('/', authenticate, authorize('admin'), userController.getAllUsers);
+router.get('/admin', authenticate, authorize('admin'), userController.getAllUsers);
+router.put('/:id', authenticate, authorize('admin'), userController.updateUser);
 router.get('/:id', authenticate, authorize('admin'), userController.getProfile);
 router.delete('/:id', authenticate, authorize('admin'), userController.deleteUser);
 

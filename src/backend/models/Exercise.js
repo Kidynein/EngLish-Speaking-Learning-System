@@ -37,6 +37,43 @@ class Exercise {
         };
     }
 
+    static async getAllFiltered(page = 1, limit = 10, lessonId = '', type = '') {
+        const limitNum = Number(limit);
+        const offset = (Number(page) - 1) * limitNum;
+
+        let query = 'SELECT * FROM Exercises WHERE 1=1';
+        let countQuery = 'SELECT COUNT(*) as total FROM Exercises WHERE 1=1';
+        const params = [];
+        const countParams = [];
+
+        if (lessonId) {
+            query += ' AND lesson_id = ?';
+            countQuery += ' AND lesson_id = ?';
+            params.push(lessonId);
+            countParams.push(lessonId);
+        }
+
+        if (type) {
+            query += ' AND type = ?';
+            countQuery += ' AND type = ?';
+            params.push(type);
+            countParams.push(type);
+        }
+
+        query += ' LIMIT ? OFFSET ?';
+        params.push(limitNum, offset);
+
+        const [rows] = await pool.query(query, params);
+        const [countResult] = await pool.query(countQuery, countParams);
+
+        return {
+            exercises: rows.map(this._mapToModel),
+            total: countResult[0].total,
+            page: Number(page),
+            limit: limitNum
+        };
+    }
+
     static async getByLesson(lessonId, page = 1, limit = 10) {
         const limitNum = Number(limit);
         const offset = (Number(page) - 1) * limitNum;

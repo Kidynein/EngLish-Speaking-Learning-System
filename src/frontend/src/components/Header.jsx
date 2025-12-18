@@ -32,27 +32,31 @@ const Header = () => {
             Home
           </NavLink>
 
-          <NavLink
-            to="/my-progress"
-            className={({ isActive }) =>
-              isActive
-                ? "text-green-600 font-bold"
-                : "text-gray-500 hover:text-green-600 transition-colors"
-            }
-          >
-            My Progress
-          </NavLink>
+          {user?.role !== 'admin' && (
+            <>
+              <NavLink
+                to="/my-progress"
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-green-600 font-bold"
+                    : "text-gray-500 hover:text-green-600 transition-colors"
+                }
+              >
+                My Progress
+              </NavLink>
 
-          <NavLink
-            to="/history"
-            className={({ isActive }) =>
-              isActive
-                ? "text-green-600 font-bold"
-                : "text-gray-500 hover:text-green-600 transition-colors"
-            }
-          >
-            History
-          </NavLink>
+              <NavLink
+                to="/history"
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-green-600 font-bold"
+                    : "text-gray-500 hover:text-green-600 transition-colors"
+                }
+              >
+                History
+              </NavLink>
+            </>
+          )}
         </nav>
 
         {/* User Action Area */}

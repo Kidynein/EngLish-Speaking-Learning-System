@@ -49,7 +49,19 @@ exports.submitAttempt = async (req, res) => {
 
         // Validate required fields
         if (!sessionId || !exerciseId) {
-            return errorResponse(res, 400, 'sessionId and exerciseId are required');
+            if (!exerciseId) {
+                return errorResponse(res, 400, 'exerciseId is required');
+            }
+            // If sessionId is missing, create a new session
+            const [rows] = await pool.query('SELECT l.topic_id FROM Exercises e JOIN Lessons l ON e.lesson_id = l.lesson_id WHERE e.exercise_id = ?', [exerciseId]);
+            if (rows.length === 0) {
+                return errorResponse(res, 400, 'Invalid exerciseId');
+            }
+            const topicId = rows[0].topic_id;
+            const userId = req.user.userId;
+            console.log('Creating session for user:', userId, 'topic:', topicId);
+            sessionId = await PracticeSession.create(userId, topicId);
+            console.log('Session created with ID:', sessionId);
         }
 
         // Validate scores (should be between 0-100)
@@ -76,6 +88,7 @@ exports.submitAttempt = async (req, res) => {
         }
 
         // Create the attempt record
+        console.log('Creating attempt with data:', { sessionId, exerciseId, userAudioUrl, scoreOverall, scorePronunciation, scoreFluency, scoreConfidence, aiFeedbackJson });
         const attemptId = await ExerciseAttempt.create({
             sessionId,
             exerciseId,
@@ -86,6 +99,7 @@ exports.submitAttempt = async (req, res) => {
             scoreConfidence: parseFloat(scoreConfidence).toFixed(2),
             aiFeedbackJson: aiFeedbackJson || JSON.stringify({}) // Store as JSON string
         });
+        console.log('Attempt created with ID:', attemptId);
 
         // Retrieve the created attempt
         const attempt = await ExerciseAttempt.findById(attemptId);
