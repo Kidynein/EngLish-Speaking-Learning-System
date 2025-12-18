@@ -248,7 +248,7 @@ function DashboardPage() {
                         percent={topic.progress || 0} // Display real progress or 0
                         color="from-green-500 to-emerald-600"
                         emoji="👋"
-                        onClick={() => handleTopicClick(topic.id)}
+                        onClick={() => handleStartTopic(topic.id)}
                         isLoading={false}
                       />
                     </motion.div>

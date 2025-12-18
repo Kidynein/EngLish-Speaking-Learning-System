@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Card, Table, Button, Form, Row, Col, Pagination, Badge } from 'react-bootstrap';
-import { toast } from 'react-toastify';
 import api from '../services/api';
 import AuthContext from '../context/AuthContext';
 
@@ -52,129 +50,152 @@ const HistoryPage = () => {
     };
 
     return (
-        <div className="container mt-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <h2>My Learning History</h2>
 
             {/* Filters */}
-            <Card className="mb-4">
-                <Card.Body>
-                    <Row>
-                        <Col md={3}>
-                            <Form.Group>
-                                <Form.Label>Start Date</Form.Label>
-                                <Form.Control
-                                    type="date"
-                                    value={startDate}
-                                    onChange={(e) => setStartDate(e.target.value)}
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col md={3}>
-                            <Form.Group>
-                                <Form.Label>End Date</Form.Label>
-                                <Form.Control
-                                    type="date"
-                                    value={endDate}
-                                    onChange={(e) => setEndDate(e.target.value)}
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col md={3}>
-                            <Form.Group>
-                                <Form.Label>Exercise Type</Form.Label>
-                                <Form.Select
-                                    value={typeFilter}
-                                    onChange={(e) => setTypeFilter(e.target.value)}
-                                >
-                                    <option value="">All Types</option>
-                                    <option value="pronunciation">Pronunciation</option>
-                                    <option value="reading">Reading</option>
-                                    <option value="speaking">Speaking</option>
-                                </Form.Select>
-                            </Form.Group>
-                        </Col>
-                        <Col md={3} className="d-flex align-items-end">
-                            <Button
-                                variant="primary"
-                                onClick={handleFilter}
-                            >
-                                Filter
-                            </Button>
-                        </Col>
-                    </Row>
-                </Card.Body>
-            </Card>
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                        <input
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                        <input
+                            type="date"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Exercise Type</label>
+                        <select
+                            value={typeFilter}
+                            onChange={(e) => setTypeFilter(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                        >
+                            <option value="">All Types</option>
+                            <option value="pronunciation">Pronunciation</option>
+                            <option value="reading">Reading</option>
+                            <option value="speaking">Speaking</option>
+                        </select>
+                    </div>
+                    <div className="flex items-end">
+                        <button
+                            onClick={handleFilter}
+                            className="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+                        >
+                            Filter
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             {/* History Table */}
-            <Card>
-                <Card.Body>
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                <div className="overflow-x-auto">
                     {loading ? (
-                        <div className="text-center py-4">
-                            <p>Loading history...</p>
+                        <div className="text-center py-8">
+                            <p className="text-gray-500">Loading history...</p>
                         </div>
                     ) : (
                         <>
-                            <Table striped bordered hover responsive>
-                                <thead>
+                            <table className="w-full table-auto">
+                                <thead className="bg-gray-50">
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Topic</th>
-                                        <th>Lesson</th>
-                                        <th>Exercise</th>
-                                        <th>Type</th>
-                                        <th>Score</th>
-                                        <th>Session Score</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Topic</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lesson</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Exercise</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Session Score</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody className="bg-white divide-y divide-gray-200">
                                     {history.map(item => (
-                                        <tr key={item.id}>
-                                            <td>{formatDate(item.date)}</td>
-                                            <td>{item.topicName || 'N/A'}</td>
-                                            <td>{item.lessonName || 'N/A'}</td>
-                                            <td>{item.exerciseContent ? item.exerciseContent.substring(0, 50) + '...' : 'N/A'}</td>
-                                            <td>
-                                                <Badge bg="info">{item.exerciseType || 'N/A'}</Badge>
+                                        <tr key={item.id} className="hover:bg-gray-50">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(item.date)}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.topicName || 'N/A'}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.lessonName || 'N/A'}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-900">{item.exerciseContent ? item.exerciseContent.substring(0, 50) + '...' : 'N/A'}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                    {item.exerciseType || 'N/A'}
+                                                </span>
                                             </td>
-                                            <td>
-                                                <Badge bg={item.score >= 80 ? 'success' : item.score >= 60 ? 'warning' : 'danger'}>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                                    item.score >= 80 ? 'bg-green-100 text-green-800' :
+                                                    item.score >= 60 ? 'bg-yellow-100 text-yellow-800' :
+                                                    'bg-red-100 text-red-800'
+                                                }`}>
                                                     {item.score || 0}/100
-                                                </Badge>
+                                                </span>
                                             </td>
-                                            <td>
-                                                <Badge bg={item.sessionScore >= 80 ? 'success' : item.sessionScore >= 60 ? 'warning' : 'danger'}>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                                    item.sessionScore >= 80 ? 'bg-green-100 text-green-800' :
+                                                    item.sessionScore >= 60 ? 'bg-yellow-100 text-yellow-800' :
+                                                    'bg-red-100 text-red-800'
+                                                }`}>
                                                     {item.sessionScore || 0}/100
-                                                </Badge>
+                                                </span>
                                             </td>
                                         </tr>
                                     ))}
                                 </tbody>
-                            </Table>
+                            </table>
 
                             {history.length === 0 && (
-                                <div className="text-center py-4">
-                                    <p className="text-muted">No history found. Start practicing to see your progress!</p>
+                                <div className="text-center py-8">
+                                    <p className="text-gray-500">No history found. Start practicing to see your progress!</p>
                                 </div>
                             )}
                         </>
                     )}
-                </Card.Body>
-            </Card>
+                </div>
+            </div>
 
             {/* Pagination */}
             {totalPages > 1 && (
-                <div className="d-flex justify-content-center mt-3">
-                    <Pagination>
-                        {[...Array(totalPages)].map((_, i) => (
-                            <Pagination.Item
-                                key={i + 1}
-                                active={i + 1 === currentPage}
-                                onClick={() => setCurrentPage(i + 1)}
-                            >
-                                {i + 1}
-                            </Pagination.Item>
-                        ))}
-                    </Pagination>
+                <div className="flex justify-center items-center space-x-2 mt-6">
+                    <button
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Previous
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                        <button
+                            key={page}
+                            onClick={() => setCurrentPage(page)}
+                            className={`px-3 py-2 text-sm font-medium rounded-md ${
+                                currentPage === page
+                                    ? 'text-white bg-blue-600 border border-blue-600'
+                                    : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                            }`}
+                        >
+                            {page}
+                        </button>
+                    ))}
+
+                    <button
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Next
+                    </button>
                 </div>
             )}
         </div>
