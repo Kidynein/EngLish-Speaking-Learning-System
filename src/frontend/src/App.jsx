@@ -10,9 +10,12 @@ import {
   DashboardPage,
   LandingPage,
   PracticePage,
+  AdminUserManagementPage,
+  AdminExerciseManagementPage,
 } from "./pages";
 import { AuthProvider } from "./context/auth-context";
 import ProtectedRoute from "./components/routes/ProtectedRoute";
+import AdminRoute from "./components/routes/AdminRoute";
 import PublicRoute from "./components/routes/PublicRoute";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -37,6 +40,14 @@ function App() {
               <Route path="/practice" element={<PracticePage />} />
               <Route path="/my-progress" element={<ProgressPage />} />
               <Route path="/history" element={<HistoryPage />} />
+            </Route>
+          </Route>
+
+          {/* Admin Routes - Only for Admin Users */}
+          <Route element={<AdminRoute />}>
+            <Route element={<MainLayout />}>
+              <Route path="/admin/users" element={<AdminUserManagementPage />} />
+              <Route path="/admin/exercises" element={<AdminExerciseManagementPage />} />
             </Route>
           </Route>
 

@@ -39,8 +39,10 @@ exports.startSession = async (req, res) => {
     try {
         const { topicId } = req.body;
         const userId = req.user.userId;
+        console.log('Starting session for user:', userId, 'topic:', topicId);
 
         const sessionId = await PracticeSession.create(userId, topicId);
+        console.log('Session created with ID:', sessionId);
         const session = await PracticeSession.findById(sessionId);
 
         successResponse(res, 201, 'Practice session started', session);
@@ -52,8 +54,10 @@ exports.startSession = async (req, res) => {
 exports.endSession = async (req, res) => {
     try {
         const { sessionScore } = req.body;
+        console.log('Ending session:', req.params.id, 'with score:', sessionScore);
 
         const updated = await PracticeSession.endSession(req.params.id, sessionScore);
+        console.log('Session end result:', updated);
         if (!updated) return errorResponse(res, 400, 'Failed to end session or Session not found');
 
         const updatedSession = await PracticeSession.findById(req.params.id);
