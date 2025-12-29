@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import api from '../services/api';
-import AuthContext from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 
 const HistoryPage = () => {
-    const { user } = useContext(AuthContext);
+    const { user } = useAuth();
     const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -132,20 +133,18 @@ const HistoryPage = () => {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                                    item.score >= 80 ? 'bg-green-100 text-green-800' :
-                                                    item.score >= 60 ? 'bg-yellow-100 text-yellow-800' :
-                                                    'bg-red-100 text-red-800'
-                                                }`}>
+                                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${item.score >= 80 ? 'bg-green-100 text-green-800' :
+                                                        item.score >= 60 ? 'bg-yellow-100 text-yellow-800' :
+                                                            'bg-red-100 text-red-800'
+                                                    }`}>
                                                     {item.score || 0}/100
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                                    item.sessionScore >= 80 ? 'bg-green-100 text-green-800' :
-                                                    item.sessionScore >= 60 ? 'bg-yellow-100 text-yellow-800' :
-                                                    'bg-red-100 text-red-800'
-                                                }`}>
+                                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${item.sessionScore >= 80 ? 'bg-green-100 text-green-800' :
+                                                        item.sessionScore >= 60 ? 'bg-yellow-100 text-yellow-800' :
+                                                            'bg-red-100 text-red-800'
+                                                    }`}>
                                                     {item.sessionScore || 0}/100
                                                 </span>
                                             </td>
@@ -179,11 +178,10 @@ const HistoryPage = () => {
                         <button
                             key={page}
                             onClick={() => setCurrentPage(page)}
-                            className={`px-3 py-2 text-sm font-medium rounded-md ${
-                                currentPage === page
+                            className={`px-3 py-2 text-sm font-medium rounded-md ${currentPage === page
                                     ? 'text-white bg-blue-600 border border-blue-600'
                                     : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-                            }`}
+                                }`}
                         >
                             {page}
                         </button>
