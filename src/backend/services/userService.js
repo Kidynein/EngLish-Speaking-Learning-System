@@ -39,10 +39,34 @@ class UserService {
         return result;
     }
 
+    static async getAllUsersFiltered(page, limit, search, role) {
+        const result = await User.getAllFiltered(page, limit, search, role);
+        if (result.users && result.users.length > 0) {
+            result.users = result.users.map(user => {
+                const safeUser = { ...user };
+                delete safeUser.passwordHash;
+                return safeUser;
+            });
+        }
+
+        return result;
+    }
+
+    static async updateUser(userId, data) {
+        const updated = await User.update(userId, data);
+        if (!updated) {
+            return null;
+        }
+        const user = await User.findById(userId);
+        delete user.passwordHash;
+        return user;
+    }
+
     static async deleteUser(userId) {
         const result = await User.delete(userId);
         return result;
     }
+
     static async getUserStats(userId) {
         return await UserStats.findByUserId(userId);
     }

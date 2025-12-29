@@ -4,7 +4,12 @@ const { validationResult } = require('express-validator');
 
 exports.getAllExercises = async (req, res) => {
     try {
-        const result = await Exercise.getAll(req.query.page, req.query.limit);
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const lessonId = req.query.lessonId || '';
+        const type = req.query.type || '';
+
+        const result = await Exercise.getAllFiltered(page, limit, lessonId, type);
         successResponse(res, 200, 'Exercises retrieved', result);
     } catch (error) {
         errorResponse(res, 500, 'Failed to retrieve exercises', error.message);
