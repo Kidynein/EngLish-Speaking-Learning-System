@@ -10,6 +10,7 @@ class User {
             email: row.email,
             role: row.role,
             avatarUrl: row.avatar_url,
+            isActive: true, // TODO: Add is_active column to database
             passwordHash: row.password_hash,
             createdAt: row.created_at,
             updatedAt: row.updated_at
@@ -47,6 +48,44 @@ class User {
         };
     }
 
+    static async getAllFiltered(page = 1, limit = 10, search = '', role = '') {
+        const limitNum = Number(limit);
+        const offset = (Number(page) - 1) * limitNum;
+
+        let query = 'SELECT user_id, full_name, email, role, avatar_url, created_at FROM Users WHERE 1=1';
+        let countQuery = 'SELECT COUNT(*) as total FROM Users WHERE 1=1';
+        const params = [];
+        const countParams = [];
+
+        if (search) {
+            query += ' AND (full_name LIKE ? OR email LIKE ?)';
+            countQuery += ' AND (full_name LIKE ? OR email LIKE ?)';
+            const searchTerm = `%${search}%`;
+            params.push(searchTerm, searchTerm);
+            countParams.push(searchTerm, searchTerm);
+        }
+
+        if (role) {
+            query += ' AND role = ?';
+            countQuery += ' AND role = ?';
+            params.push(role);
+            countParams.push(role);
+        }
+
+        query += ' LIMIT ? OFFSET ?';
+        params.push(limitNum, offset);
+
+        const [rows] = await pool.query(query, params);
+        const [countResult] = await pool.query(countQuery, countParams);
+
+        return {
+            users: rows.map(this._mapToModel),
+            total: countResult[0].total,
+            page: Number(page),
+            limit: limitNum
+        };
+    }
+
     // Input nhận Object để code rõ ràng hơn
     static async create({ fullName, email, passwordHash, role = 'learner', avatarUrl = null }) {
         const [result] = await pool.query(
@@ -59,7 +98,9 @@ class User {
     static async update(userId, data) {
         const allowedFields = {
             full_name: data.fullName,
-            avatar_url: data.avatarUrl
+            avatar_url: data.avatarUrl,
+            role: data.role
+            // is_active: data.isActive // TODO: Add column
         };
 
         const updates = [];

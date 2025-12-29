@@ -7,6 +7,8 @@ import ForgotPasswordPage from "./ForgotPasswordPage";
 import DashboardPage from "./DashboardPage";
 import LandingPage from "./LandingPage";
 import PracticePage from "./PracticePage";
+import AdminUserManagementPage from "./AdminUserManagementPage";
+import AdminExerciseManagementPage from "./AdminExerciseManagementPage";
 
 export {
     HomePage,
@@ -18,4 +20,6 @@ export {
     DashboardPage,
     LandingPage,
     PracticePage,
+    AdminUserManagementPage,
+    AdminExerciseManagementPage,
 };
