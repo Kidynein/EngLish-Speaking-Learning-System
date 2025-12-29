@@ -56,8 +56,8 @@ const AdminExerciseManagement = () => {
         } else {
             fetchExercises(currentPage);
         }
-        return() => {
-             if (abortControllerRef.current) {
+        return () => {
+            if (abortControllerRef.current) {
                 abortControllerRef.current.abort();
             }
         };
@@ -196,11 +196,11 @@ const AdminExerciseManagement = () => {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {exercises.map(exercise => (
-                                    <tr key={exercise.id} className="hover:bg-gray-50">
+                                {exercises.map((exercise, index) => (
+                                    <tr key={exercise.id || `exercise-${index}`} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{exercise.id}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{exercise.lessonId}</td>
-                                        <td className="px-6 py-4 text-sm text-gray-900">{exercise.contentText.substring(0, 50)}...</td>
+                                        <td className="px-6 py-4 text-sm text-gray-900">{exercise.contentText?.substring(0, 50) || 'N/A'}...</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{exercise.type}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{exercise.orderIndex}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">

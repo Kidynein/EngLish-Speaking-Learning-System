@@ -189,10 +189,10 @@ function PracticePage() {
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 flex flex-col items-center justify-center gap-8 sm:gap-12 w-full mt-10 px-6">
+            <div className="flex-1 flex flex-col items-center justify-center gap-8 sm:gap-12 w-full mt-24 px-6">
                 {/* Target Sentence Display */}
                 <div className="text-center max-w-3xl">
-                    <h2 className="text-sm uppercase tracking-wider text-emerald-600 font-semibold mb-4">
+                    <h2 className="text-4xl uppercase tracking-wider text-emerald-600 font-semibold mb-4">
                         Read this sentence
                     </h2>
                     <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-800 leading-tight">

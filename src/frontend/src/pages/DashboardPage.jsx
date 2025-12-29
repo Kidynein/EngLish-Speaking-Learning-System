@@ -5,6 +5,7 @@ import Header from "../components/Header.jsx";
 import StatCard from "../components/StatCard.jsx";
 import TopicCard from "../components/TopicCard.jsx";
 import TopicCardSkeleton from "../components/TopicCardSkeleton.jsx";
+import TopicFilterBar from "../components/TopicFilterBar.jsx";
 import topicService from "../services/topic.service";
 import exerciseService from "../services/exercise.service";
 import userService from "../services/user.service";
@@ -24,9 +25,11 @@ function DashboardPage() {
     totalPracticeSeconds: 0,
     averageScore: 0
   });
+  const [filters, setFilters] = useState({ search: '', level: 'all' });
+
   const LimitTopic = 9;
 
-  // Initial Load
+  // Initial Load & Stats
   useEffect(() => {
     // Load user from local storage
     const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
@@ -37,7 +40,7 @@ function DashboardPage() {
       try {
         const data = await userService.getUserStats();
         if (data && data.data) {
-          setStats(data.data); // data.data because api returns { success: true, message: '...', data: { ... } }
+          setStats(data.data);
         }
       } catch (error) {
         console.error("Failed to load stats:", error);
@@ -45,16 +48,26 @@ function DashboardPage() {
     };
 
     fetchStats();
-    fetchTopics(1, false);
+    // fetchTopics called by filter effect below
   }, []);
 
+  // Filter Change Effect
+  useEffect(() => {
+    setPage(1);
+    setHasMore(true);
+    fetchTopics(1, false, filters);
+  }, [filters]);
+
   // Fetch Topics
-  const fetchTopics = async (pageNumber = 1, isLoadMore = false) => {
+  // Note: We pass filters explicitly to avoid closure staleness if called from other contexts, 
+  // but usually for LoadMore we need the *current* state. 
+  // For LoadMore, we'll use the state `filters`.
+  const fetchTopics = async (pageNumber = 1, isLoadMore = false, currentFilters = filters) => {
     try {
       if (isLoadMore) setIsLoadingMore(true);
       else setLoading(true);
 
-      const newTopics = await topicService.getAllTopics(pageNumber, LimitTopic);
+      const newTopics = await topicService.getAllTopics(pageNumber, LimitTopic, currentFilters);
 
       if (newTopics.length < LimitTopic) {
         setHasMore(false);
@@ -63,6 +76,7 @@ function DashboardPage() {
       setTopics((prev) => (isLoadMore ? [...prev, ...newTopics] : newTopics));
     } catch (err) {
       toast.error("Failed to load topics");
+      console.error(err);
     } finally {
       setLoading(false);
       setIsLoadingMore(false);
@@ -72,10 +86,17 @@ function DashboardPage() {
   const handleLoadMore = () => {
     const nextPage = page + 1;
     setPage(nextPage);
-    fetchTopics(nextPage, true);
+    fetchTopics(nextPage, true, filters);
   };
 
-  // ... inside component
+  const handleSearch = (term) => {
+    setFilters(prev => ({ ...prev, search: term }));
+  };
+
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  };
+
 
   const handleStartTopic = async (topicId) => {
     try {
@@ -107,8 +128,6 @@ function DashboardPage() {
       } catch (sessionErr) {
         console.error("Failed to create session:", sessionErr);
         toast.error("Could not start session tracking. Practice will not be saved.");
-        // We can decide to return here or allow practice without tracking.
-        // Let's allow practice but warn user.
       }
 
       // 5. Navigate to practice with data
@@ -124,6 +143,31 @@ function DashboardPage() {
     } catch (error) {
       console.error(error);
       toast.error("Failed to start practice session");
+    }
+  };
+
+  const handleRandomPractice = async () => {
+    try {
+      setLoading(true); // Reuse loading state or create a new local one
+      // Better to use a specific loading state if 'loading' controls the main skeleton
+      const randomExercises = await exerciseService.getRandomExercises();
+
+      if (randomExercises.length === 0) {
+        toast.warning("No exercises available for random practice.");
+        return;
+      }
+
+      navigate("/practice", {
+        state: {
+          exercises: randomExercises,
+          sessionId: null // Explicitly untracked
+        }
+      });
+    } catch (error) {
+      console.error("Failed to start random practice:", error);
+      toast.error("Failed to start random practice");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -221,6 +265,12 @@ function DashboardPage() {
                 color="green"
               />
               {/* Temporary Placeholder or another stat if available */}
+              <StatCard
+                label="Levels"
+                value="N/A"
+                description="coming soon"
+                color="gray"
+              />
             </section>
 
             {/* Topics Section */}
@@ -232,6 +282,12 @@ function DashboardPage() {
                   </h2>
                 </div>
               </div>
+
+              <TopicFilterBar
+                onSearch={handleSearch}
+                onFilterChange={handleFilterChange}
+                currentFilters={filters}
+              />
 
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 <AnimatePresence mode="popLayout">
@@ -268,6 +324,7 @@ function DashboardPage() {
                 </AnimatePresence>
               </div>
 
+              {/* Load More Button Container */}
               {!loading && hasMore && (
                 <div className="relative pt-8 pb-4 flex justify-center">
                   {/* Optional Gradient Mask Hint */}
@@ -277,8 +334,8 @@ function DashboardPage() {
                     onClick={handleLoadMore}
                     disabled={isLoadingMore}
                     className="group relative px-8 py-3 rounded-full border border-green-500 text-green-700 font-medium 
-                hover:bg-green-600 hover:text-white hover:border-transparent hover:shadow-lg hover:-translate-y-0.5
-                active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                               hover:bg-green-600 hover:text-white hover:border-transparent hover:shadow-lg hover:-translate-y-0.5
+                               active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isLoadingMore ? (
                       <span className="flex items-center gap-2">
@@ -320,10 +377,11 @@ function DashboardPage() {
                 at your current level.
               </p>
               <button
-                onClick={() => navigate("/practice")}
-                className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-3 text-base font-semibold text-white hover:from-green-700 hover:to-emerald-700 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl"
+                onClick={handleRandomPractice}
+                disabled={loading}
+                className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-3 text-base font-semibold text-white hover:from-green-700 hover:to-emerald-700 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Start Random Practice
+                {loading ? "Loading..." : "Start Random Practice"}
               </button>
             </section>
           </>

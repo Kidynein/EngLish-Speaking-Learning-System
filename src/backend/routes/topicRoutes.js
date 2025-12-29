@@ -12,7 +12,7 @@ const topicValidation = [
     body('difficultyLevel').optional().isIn(['easy', 'medium', 'hard']).withMessage('Invalid difficulty level')
 ];
 
-router.get('/', topicController.getAllTopics);
+router.get('/', authenticate, topicController.getAllTopics);
 router.get('/:id', topicController.getTopicById);
 
 // Admin routes

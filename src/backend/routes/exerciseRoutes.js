@@ -12,6 +12,7 @@ const exerciseValidation = [
 ];
 
 router.get('/', exerciseController.getAllExercises);
+router.get('/random', exerciseController.getRandomExercises);
 router.get('/lesson/:lessonId', exerciseController.getExercisesByLesson);
 router.get('/:id', exerciseController.getExerciseById);
 

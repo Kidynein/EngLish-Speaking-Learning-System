@@ -95,6 +95,15 @@ class Exercise {
         };
     }
 
+    static async getRandom(limit = 5) {
+        const limitNum = Number(limit);
+        const [rows] = await pool.query(
+            'SELECT * FROM Exercises ORDER BY RAND() LIMIT ?',
+            [limitNum]
+        );
+        return rows;
+    }
+
     static async findById(exerciseId) {
         const [rows] = await pool.query(
             'SELECT * FROM Exercises WHERE exercise_id = ?',

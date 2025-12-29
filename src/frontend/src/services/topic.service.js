@@ -8,10 +8,16 @@ const topicService = {
      * Get all available topics
      * @returns {Promise<Array>} List of topics
      */
-    getAllTopics: async (page = 1, limit = 9) => {
-        const response = await api.get(`${TOPIC_URL}?page=${page}&limit=${limit}`);
-        // The backend returns a paginated structure: { topics: [...], total: ... }
-        // We need to extract the topics array.
+    getAllTopics: async (page = 1, limit = 9, filters = {}) => {
+        const { search = '', level = 'all' } = filters;
+        const queryParams = new URLSearchParams({
+            page,
+            limit,
+            ...(search && { search }),
+            ...(level && level !== 'all' && { level })
+        });
+
+        const response = await api.get(`${TOPIC_URL}?${queryParams.toString()}`);
         return response.data?.data?.topics || [];
     },
 
