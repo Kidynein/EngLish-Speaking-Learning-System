@@ -98,9 +98,17 @@ const FeedbackSheet = ({
                         )}
 
                         {/* Feedback Message */}
-                        <p className="text-gray-700 text-lg text-center font-medium leading-relaxed">
+                        <div className={`
+                            text-lg text-center font-medium leading-relaxed px-4 py-3 rounded-xl
+                            ${score >= 90 
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
+                                : score >= 70 
+                                    ? 'bg-amber-50 text-amber-700 border border-amber-200' 
+                                    : 'bg-red-50 text-red-700 border border-red-200'
+                            }
+                        `}>
                             {feedback}
-                        </p>
+                        </div>
 
                         {/* Word-Level Feedback */}
                         {wordFeedback && wordFeedback.length > 0 && (

@@ -233,19 +233,46 @@ const levenshteinDistance = (str1, str2) => {
 
 /**
  * Generate AI feedback text based on score
+ * This is a fallback when Gemini AI feedback is not available
+ * @param {Object} scoreData - Score data object
+ * @param {string} [aiFeedback] - Optional AI-generated feedback from Gemini
+ * @returns {string} Feedback message
  */
-export const generateFeedback = (scoreData) => {
+export const generateFeedback = (scoreData, aiFeedback = null) => {
+    // If AI feedback is provided, use it directly
+    if (aiFeedback && typeof aiFeedback === 'string' && aiFeedback.trim().length > 0) {
+        return aiFeedback;
+    }
+
     const { overallScore, feedback, correctWords, wordCount } = scoreData;
 
+    // Find words with errors for specific feedback
+    const incorrectWords = feedback?.filter(w => w.status === 'incorrect' || w.status === 'partial') || [];
+    const firstError = incorrectWords.length > 0 ? incorrectWords[0] : null;
+
     if (overallScore >= 95) {
-        return " Excellent! Your pronunciation is nearly perfect!";
+        return "Outstanding! Your pronunciation is excellent and sounds very natural!";
+    } else if (overallScore >= 90) {
+        return "Excellent work! Your pronunciation is nearly perfect. Keep it up!";
     } else if (overallScore >= 85) {
-        return " Great job! Your pronunciation is very good. Keep practicing!";
+        if (firstError) {
+            return `Great job! Just a small tip: pay attention to "${firstError.word}" for even better results.`;
+        }
+        return "Great job! Your pronunciation is very clear. Keep practicing!";
     } else if (overallScore >= 70) {
-        return " Good effort! Focus on the words highlighted in red for improvement.";
+        if (firstError) {
+            return `Good effort! Focus on pronouncing "${firstError.word}" more clearly. You're improving!`;
+        }
+        return "Good effort! Focus on the highlighted words for improvement. You're making progress!";
     } else if (overallScore >= 50) {
-        return " Keep practicing! Pay attention to pronunciation and try to speak more clearly.";
+        if (firstError) {
+            return `Keep practicing! Try saying "${firstError.word}" more slowly. Break it into syllables if needed.`;
+        }
+        return "Keep practicing! Try speaking more slowly and clearly. Every practice counts!";
     } else {
-        return " Don't give up! Try speaking more slowly and clearly. Practice makes perfect!";
+        if (firstError) {
+            return `Don't give up! Let's focus on "${firstError.word}" first. Say it slowly and listen carefully.`;
+        }
+        return "Don't give up! Try speaking more slowly and clearly. Practice makes perfect!";
     }
 };

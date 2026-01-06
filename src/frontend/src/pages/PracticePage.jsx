@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import PracticeSessionLayout from "../components/practice/PracticeSessionLayout";
 import ProgressBar from "../components/practice/ProgressBar";
@@ -8,9 +8,15 @@ import exerciseService from "../services/exercise.service";
 import practiceSessionService from "../services/practiceSession.service";
 import { toast } from "react-toastify";
 
-// Import the new hook and utilities
+// Import hooks and utilities
 import useSpeechRecognition from "../hooks/useSpeechRecognition";
+import useAudioRecorder from "../hooks/useAudioRecorder";
 import { calculateScore, generateFeedback } from "../utils/scoringUtils";
+import { analyzePronunciation } from "../services/assessment.service";
+
+// Feature flag for AI assessment (set to true to use Gemini API)
+// Set to false if Gemini API quota is exceeded
+const USE_AI_ASSESSMENT = true;
 
 function PracticePage() {
     const navigate = useNavigate();
@@ -23,17 +29,38 @@ function PracticePage() {
     const [accumulatedScore, setAccumulatedScore] = useState(0);
     const [isProcessing, setIsProcessing] = useState(false);
 
-    // Use the speech recognition hook
+    // ========== PREVENT DOUBLE SUBMISSIONS ==========
+    // Ref to track if AI request is in flight (persists across renders)
+    const isAnalyzingRef = useRef(false);
+    // Ref to prevent React Strict Mode double-invocation
+    const hasProcessedBlobRef = useRef(false);
+
+    // Use the speech recognition hook (for real-time transcript display)
     const {
-        isRecording,
+        isRecording: isSpeechRecording,
         transcript,
         interimTranscript,
-        startRecording,
-        stopRecording,
+        startRecording: startSpeechRecording,
+        stopRecording: stopSpeechRecording,
         resetTranscript,
         error: speechError,
-        isSupported
+        isSupported: isSpeechSupported
     } = useSpeechRecognition();
+
+    // Use the audio recorder hook (for AI assessment)
+    const {
+        isRecording: isAudioRecording,
+        audioBlob,
+        startRecording: startAudioRecording,
+        stopRecording: stopAudioRecording,
+        resetRecording: resetAudioRecording,
+        error: audioError,
+        isSupported: isAudioSupported
+    } = useAudioRecorder();
+
+    // Combined recording state
+    const isRecording = USE_AI_ASSESSMENT ? isAudioRecording : isSpeechRecording;
+    const isSupported = USE_AI_ASSESSMENT ? isAudioSupported : isSpeechSupported;
 
     // Validate state on mount
     useEffect(() => {
@@ -47,94 +74,235 @@ function PracticePage() {
         }
     }, [exercises, navigate, isSupported]);
 
-    // Show speech errors to user
+    // Show errors to user
     useEffect(() => {
-        if (speechError) {
-            toast.error(speechError);
+        const error = speechError || audioError;
+        if (error) {
+            toast.error(error);
         }
-    }, [speechError]);
+    }, [speechError, audioError]);
 
     const currentExercise = exercises && exercises.length > 0 ? exercises[currentIndex] : null;
     const targetText = currentExercise?.contentText || currentExercise?.content_text || "";
 
     const handleToggleRecording = () => {
+        // ========== PREVENT INTERACTION WHILE PROCESSING ==========
+        if (isProcessing || isAnalyzingRef.current) {
+            console.log('[Recording] ⚠️ Cannot toggle - still processing previous recording');
+            toast.info("Please wait, processing your recording...");
+            return;
+        }
+        
         if (!isRecording) {
             // Start recording
+            console.log('[Recording] 🎤 Starting new recording...');
             resetTranscript();
-            startRecording();
+            hasProcessedBlobRef.current = false; // Reset for new recording
+            if (USE_AI_ASSESSMENT) {
+                resetAudioRecording();
+                startAudioRecording();
+                // Also start speech recognition for real-time feedback
+                startSpeechRecording();
+            } else {
+                startSpeechRecording();
+            }
         } else {
-            // Stop recording and process result
-            stopRecording();
-            processRecording();
+            // Stop recording
+            console.log('[Recording] 🛑 Stopping recording...');
+            if (USE_AI_ASSESSMENT) {
+                stopAudioRecording();
+                stopSpeechRecording();
+            } else {
+                stopSpeechRecording();
+            }
         }
     };
 
-    const processRecording = async () => {
+    // Process recording when audio blob is ready (AI mode)
+    // Uses refs to prevent double-invocation from React Strict Mode
+    useEffect(() => {
+        // Guard: Only process if we have a new blob and not already processing
+        if (USE_AI_ASSESSMENT && audioBlob && !isRecording && !hasProcessedBlobRef.current && !isAnalyzingRef.current) {
+            hasProcessedBlobRef.current = true; // Mark as processed
+            processAIAssessment();
+        }
+    }, [audioBlob, isRecording]);
+
+    // Reset the processed flag when recording starts
+    useEffect(() => {
+        if (isRecording) {
+            hasProcessedBlobRef.current = false;
+        }
+    }, [isRecording]);
+
+    // Process recording when speech recognition stops (fallback mode)
+    useEffect(() => {
+        if (!USE_AI_ASSESSMENT && !isSpeechRecording && transcript && !showFeedback) {
+            processLocalScoring();
+        }
+    }, [isSpeechRecording, transcript]);
+
+    // AI-powered assessment using Gemini
+    const processAIAssessment = async () => {
+        // ========== DOUBLE SUBMISSION GUARD ==========
+        if (!audioBlob) {
+            console.log('[AI] No audio blob, skipping...');
+            return;
+        }
+        
+        if (isAnalyzingRef.current) {
+            console.log('[AI] ⚠️ Request already in flight, preventing double submission');
+            return;
+        }
+        
+        // Lock the request
+        isAnalyzingRef.current = true;
+        setIsProcessing(true);
+        
+        console.log('[AI] 🎯 Starting AI assessment (locked)...');
+        
+        try {
+            console.log(`[AI] Sending audio to Gemini: ${audioBlob.size} bytes, type: ${audioBlob.type}`);
+            const response = await analyzePronunciation(audioBlob, targetText);
+            
+            if (response.success && response.data?.assessment) {
+                const assessment = response.data.assessment;
+                
+                // Map Gemini response to our format
+                const scoreData = {
+                    overallScore: assessment.overall_score,
+                    pronunciationScore: assessment.scores.pronunciation,
+                    fluencyScore: assessment.scores.fluency,
+                    confidenceScore: assessment.scores.confidence,
+                    feedback: assessment.word_analysis.map(w => ({
+                        word: w.word,
+                        status: w.is_correct ? 'correct' : 'incorrect',
+                        expected: w.word,
+                        spoken: w.heard_as,
+                        ipa: w.ipa_target,
+                        errorType: w.error_type
+                    }))
+                };
+
+                // Use AI-generated feedback message
+                const feedbackMessage = assessment.feedback_message;
+
+                // Accumulate score
+                setAccumulatedScore(prev => prev + scoreData.overallScore);
+
+                // Save attempt to backend
+                await saveAttempt(scoreData, feedbackMessage, transcript);
+
+                // Update UI
+                setFeedbackData({
+                    score: scoreData.overallScore,
+                    feedback: feedbackMessage,
+                    wordFeedback: scoreData.feedback,
+                    transcript: transcript || "(Transcribed by AI)",
+                    scoreDetails: {
+                        pronunciation: scoreData.pronunciationScore,
+                        fluency: scoreData.fluencyScore,
+                        confidence: scoreData.confidenceScore
+                    }
+                });
+                setShowFeedback(true);
+            } else {
+                throw new Error("Invalid response from AI");
+            }
+        } catch (error) {
+            console.error("[AI] ❌ Assessment failed:", error.message);
+            
+            // Show specific error messages based on error type
+            if (error.message?.includes('quota') || error.message?.includes('429')) {
+                toast.error("AI service quota exceeded. Please try again later.");
+            } else if (error.message?.includes('API key')) {
+                toast.error("AI service configuration error.");
+            } else {
+                toast.warning("AI assessment unavailable, using local scoring.");
+            }
+            
+            processLocalScoring();
+        } finally {
+            // ========== UNLOCK REQUEST ==========
+            isAnalyzingRef.current = false;
+            setIsProcessing(false);
+            console.log('[AI] 🔓 Request completed (unlocked)');
+        }
+    };
+
+    // Local scoring fallback (Web Speech API only)
+    const processLocalScoring = async () => {
         setIsProcessing(true);
 
-        // Wait a moment for final transcript to be set
-        setTimeout(async () => {
-            const finalTranscript = transcript || interimTranscript;
+        const finalTranscript = transcript || interimTranscript;
 
-            // Calculate scores using the utility function
-            const scoreData = calculateScore(targetText, finalTranscript);
+        // Calculate scores using local utility
+        const scoreData = calculateScore(targetText, finalTranscript);
 
-            // Generate feedback message
-            const feedbackMessage = generateFeedback(scoreData);
+        // Generate feedback message (local)
+        const feedbackMessage = generateFeedback(scoreData);
 
-            // Accumulate score
-            setAccumulatedScore(prev => prev + scoreData.overallScore);
+        // Accumulate score
+        setAccumulatedScore(prev => prev + scoreData.overallScore);
 
-            // Prepare data for backend (map to ERD columns)
-            const attemptData = {
-                sessionId,
-                exerciseId: currentExercise.exercise_id || currentExercise.id,
-                userAudioUrl: null, // We're using Web Speech API, no audio file
-                scoreOverall: scoreData.overallScore,
-                scorePronunciation: scoreData.pronunciationScore,
-                scoreFluency: scoreData.fluencyScore,
-                scoreConfidence: scoreData.confidenceScore,
-                aiFeedbackJson: JSON.stringify({
-                    transcript: finalTranscript,
-                    targetText: targetText,
-                    wordFeedback: scoreData.feedback,
-                    correctWords: scoreData.correctWords,
-                    totalWords: scoreData.wordCount
-                })
-            };
+        // Save attempt
+        await saveAttempt(scoreData, feedbackMessage, finalTranscript);
 
-            // Save attempt to Backend if session is active
-            if (sessionId && currentExercise) {
-                try {
-                    await exerciseService.submitAttempt(attemptData);
-                    console.log("Attempt saved successfully");
-                } catch (err) {
-                    console.error("Failed to save attempt:", err);
-                    toast.warning("Failed to save attempt to server");
-                }
+        // Update UI
+        setFeedbackData({
+            score: scoreData.overallScore,
+            feedback: feedbackMessage,
+            wordFeedback: scoreData.feedback,
+            transcript: finalTranscript,
+            scoreDetails: {
+                pronunciation: scoreData.pronunciationScore,
+                fluency: scoreData.fluencyScore,
+                confidence: scoreData.confidenceScore
             }
+        });
+        setShowFeedback(true);
+        setIsProcessing(false);
+    };
 
-            // Update UI with feedback
-            setFeedbackData({
-                score: scoreData.overallScore,
-                feedback: feedbackMessage,
+    // Helper to save attempt to backend
+    const saveAttempt = async (scoreData, feedbackMessage, userTranscript) => {
+        if (!sessionId || !currentExercise) return;
+
+        const attemptData = {
+            sessionId,
+            exerciseId: currentExercise.exercise_id || currentExercise.id,
+            userAudioUrl: null,
+            scoreOverall: scoreData.overallScore,
+            scorePronunciation: scoreData.pronunciationScore,
+            scoreFluency: scoreData.fluencyScore,
+            scoreConfidence: scoreData.confidenceScore,
+            aiFeedbackJson: JSON.stringify({
+                transcript: userTranscript,
+                targetText: targetText,
                 wordFeedback: scoreData.feedback,
-                transcript: finalTranscript,
-                scoreDetails: {
-                    pronunciation: scoreData.pronunciationScore,
-                    fluency: scoreData.fluencyScore,
-                    confidence: scoreData.confidenceScore
-                }
-            });
-            setShowFeedback(true);
-            setIsProcessing(false);
-        }, 500);
+                feedbackMessage: feedbackMessage
+            })
+        };
+
+        try {
+            await exerciseService.submitAttempt(attemptData);
+            console.log("Attempt saved successfully");
+        } catch (err) {
+            console.error("Failed to save attempt:", err);
+            toast.warning("Failed to save attempt to server");
+        }
     };
 
     const handleNext = async () => {
         // Reset state for next sentence
         setShowFeedback(false);
         resetTranscript();
+        // Reset refs to allow new recording
+        hasProcessedBlobRef.current = false;
+        isAnalyzingRef.current = false;
+        if (USE_AI_ASSESSMENT) {
+            resetAudioRecording();
+        }
 
         if (currentIndex < exercises.length - 1) {
             setCurrentIndex(prev => prev + 1);
@@ -166,6 +334,9 @@ function PracticePage() {
     const handleRetry = () => {
         setShowFeedback(false);
         resetTranscript();
+        if (USE_AI_ASSESSMENT) {
+            resetAudioRecording();
+        }
     };
 
     if (!currentExercise) return null;
