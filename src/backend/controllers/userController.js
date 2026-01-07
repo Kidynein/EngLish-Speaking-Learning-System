@@ -1,5 +1,6 @@
 const UserService = require('../services/userService');
 const { successResponse, errorResponse } = require('../utils/response');
+const bcrypt = require('bcryptjs');
 
 // Lấy thông tin cá nhân (Profile)
 exports.getProfile = async (req, res) => {
@@ -20,11 +21,47 @@ exports.getProfile = async (req, res) => {
 exports.updateProfile = async (req, res) => {
     try {
         const userId = req.user.userId; // User chỉ sửa được của chính mình
+        console.log('[updateProfile] userId:', userId);
+        console.log('[updateProfile] req.body:', req.body);
+        
         const user = await UserService.updateProfile(userId, req.body);
         
-        if (!user) return errorResponse(res, 400, 'Update failed');
+        console.log('[updateProfile] result user:', user);
+        
+        if (!user) {
+            console.log('[updateProfile] Update failed - user is null');
+            return errorResponse(res, 400, 'Update failed');
+        }
         
         successResponse(res, 200, 'Profile updated', user);
+    } catch (error) {
+        console.error('[updateProfile] Error:', error);
+        errorResponse(res, 500, error.message);
+    }
+};
+
+// Đổi mật khẩu
+exports.changePassword = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const { currentPassword, newPassword } = req.body;
+
+        // Validate input
+        if (!currentPassword || !newPassword) {
+            return errorResponse(res, 400, 'Current password and new password are required');
+        }
+
+        if (newPassword.length < 6) {
+            return errorResponse(res, 400, 'New password must be at least 6 characters');
+        }
+
+        const success = await UserService.changePassword(userId, currentPassword, newPassword);
+        
+        if (!success) {
+            return errorResponse(res, 400, 'Current password is incorrect');
+        }
+        
+        successResponse(res, 200, 'Password changed successfully');
     } catch (error) {
         errorResponse(res, 500, error.message);
     }

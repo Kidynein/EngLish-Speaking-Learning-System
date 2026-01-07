@@ -12,6 +12,7 @@ import {
   PracticePage,
   AdminUserManagementPage,
   AdminExerciseManagementPage,
+  ProfilePage,
 } from "./pages";
 import { AuthProvider } from "./context/auth-context";
 import ProtectedRoute from "./components/routes/ProtectedRoute";
@@ -40,6 +41,7 @@ function App() {
               <Route path="/practice" element={<PracticePage />} />
               <Route path="/my-progress" element={<ProgressPage />} />
               <Route path="/history" element={<HistoryPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
             </Route>
           </Route>
 
