@@ -201,7 +201,7 @@ const ProfilePage = () => {
                 className="bg-white rounded-xl shadow-md overflow-hidden mb-6"
             >
                 {/* Header Banner */}
-                <div className="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-8">
+                <div className="bg-linear-to-r from-green-500 to-emerald-600 px-6 py-8">
                     <div className="flex items-center gap-6">
                         <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center text-green-600 font-bold text-4xl shadow-lg">
                             {((profileData?.fullName || user?.fullName || 'U').charAt(0) || 'U').toUpperCase()}
@@ -336,7 +336,7 @@ const ProfilePage = () => {
                     Learning Statistics
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="flex items-center gap-3 p-4 bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100 rounded-lg">
+                    <div className="flex items-center gap-3 p-4 bg-linear-to-br from-green-50 to-emerald-50 border border-green-100 rounded-lg">
                         <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white text-xl">
                             ✅
                         </div>
@@ -347,7 +347,7 @@ const ProfilePage = () => {
                         </div>
                     </div>
                     
-                    <div className="flex items-center gap-3 p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-100 rounded-lg">
+                    <div className="flex items-center gap-3 p-4 bg-linear-to-br from-blue-50 to-cyan-50 border border-blue-100 rounded-lg">
                         <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white text-xl">
                             📝
                         </div>
@@ -358,7 +358,7 @@ const ProfilePage = () => {
                         </div>
                     </div>
                     
-                    <div className="flex items-center gap-3 p-4 bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100 rounded-lg">
+                    <div className="flex items-center gap-3 p-4 bg-linear-to-br from-purple-50 to-pink-50 border border-purple-100 rounded-lg">
                         <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-white text-xl">
                             📚
                         </div>
@@ -369,7 +369,7 @@ const ProfilePage = () => {
                         </div>
                     </div>
                     
-                    <div className="flex items-center gap-3 p-4 bg-gradient-to-br from-orange-50 to-red-50 border border-orange-100 rounded-lg">
+                    <div className="flex items-center gap-3 p-4 bg-linear-to-br from-orange-50 to-red-50 border border-orange-100 rounded-lg">
                         <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-white text-xl">
                             🔥
                         </div>
