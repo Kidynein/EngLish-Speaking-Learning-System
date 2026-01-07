@@ -1,10 +1,28 @@
 import api from "./api";
 
 const userService = {
+    // Get current user profile
+    getProfile: async () => {
+        const response = await api.get("/users/profile");
+        return response.data;
+    },
+
+    // Update current user profile
+    updateProfile: async (profileData) => {
+        const response = await api.put("/users/profile", profileData);
+        return response.data;
+    },
+
+    // Change password
+    changePassword: async (passwordData) => {
+        const response = await api.put("/users/change-password", passwordData);
+        return response.data;
+    },
+
+    // Get user stats
     getUserStats: async () => {
-        // Calls GET /api/user-stats which uses the token to identify the user
         const response = await api.get("/user-stats");
-        return response.data; // response.data.data contains the stats object based on controller
+        return response.data;
     },
 
     updateUserStats: async (statsData) => {
@@ -19,6 +37,12 @@ const userService = {
 
     getUserProgress: async () => {
         const response = await api.get("/progress");
+        return response.data;
+    },
+
+    // Get user history (for counting completed exercises)
+    getUserHistory: async (userId, params = {}) => {
+        const response = await api.get(`/users/${userId}/history`, { params });
         return response.data;
     }
 };

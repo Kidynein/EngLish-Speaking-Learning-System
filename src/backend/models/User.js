@@ -113,13 +113,14 @@ class User {
             }
         }
 
-        if (updates.length === 0) return false;
+        if (updates.length === 0) return true; // No updates needed is OK
 
         values.push(userId);
         const query = `UPDATE Users SET ${updates.join(', ')}, updated_at = NOW() WHERE user_id = ?`;
 
         const [result] = await pool.query(query, values);
-        return result.affectedRows > 0;
+        // Return true if query executed successfully, even if no rows changed (same values)
+        return true;
     }
 
     static async delete(userId) {

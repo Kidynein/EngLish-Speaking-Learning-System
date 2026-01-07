@@ -9,6 +9,7 @@ import LandingPage from "./LandingPage";
 import PracticePage from "./PracticePage";
 import AdminUserManagementPage from "./AdminUserManagementPage";
 import AdminExerciseManagementPage from "./AdminExerciseManagementPage";
+import ProfilePage from "./ProfilePage";
 
 export {
     HomePage,
@@ -22,4 +23,5 @@ export {
     PracticePage,
     AdminUserManagementPage,
     AdminExerciseManagementPage,
+    ProfilePage,
 };

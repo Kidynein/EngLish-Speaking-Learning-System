@@ -6,6 +6,7 @@ const { authenticate, authorize } = require('../middleware/authMiddleware');
 // User routes (Profile cá nhân)
 router.get('/profile', authenticate, userController.getProfile);
 router.put('/profile', authenticate, userController.updateProfile);
+router.put('/change-password', authenticate, userController.changePassword);
 
 router.get('/', userController.getAllUsers);
 // Admin routes (Quản lý user khác)
