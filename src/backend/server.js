@@ -3,8 +3,9 @@ const app = require('./app');
 
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
+app.listen(PORT, HOST, () => {
+    console.log(`Server is running on http://${HOST}:${PORT}`);
     console.log(`API Documentation:`);
     console.log(`   - Auth: POST /api/auth/register, /api/auth/login`);
     console.log(`   - Topics: GET /api/topics, POST /api/topics (admin)`);
