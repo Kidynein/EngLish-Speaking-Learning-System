@@ -1,5 +1,18 @@
 {
   "name": "EngLish-Speaking-Learning-System",
+  "version": "1.0.0",
+  "description": "English Speaking Learning System",
+  "scripts": {
+    "install:all": "npm run install:backend && npm run install:frontend",
+    "install:backend": "cd src/backend && npm install",
+    "install:frontend": "cd src/frontend && npm install",
+    "dev:backend": "cd src/backend && npm run dev",
+    "dev:frontend": "cd src/frontend && npm run dev",
+    "start:backend": "cd src/backend && npm start",
+    "start:frontend": "cd src/frontend && npm run preview",
+    "build:frontend": "cd src/frontend && npm run build",
+    "deploy": "npm run install:all && npm run build:frontend"
+  },
   "lockfileVersion": 3,
   "requires": true,
   "packages": {

@@ -1,0 +1,15 @@
+version: 2
+build:
+  os: ubuntu-22.04
+  tools:
+    nodejs: "18"
+run:
+  # Backend
+  - name: backend
+    buildCommand: cd src/backend && npm install
+    startCommand: cd src/backend && npm start
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: NODE_ENV
+        value: production
