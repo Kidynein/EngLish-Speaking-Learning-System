@@ -39,29 +39,29 @@ const UserDropdown = () => {
             {/* Trigger Button */}
             <button
                 onClick={toggleDropdown}
-                className="flex items-center gap-2 focus:outline-none hover:bg-gray-50 p-2 rounded-lg transition-colors cursor-pointer"
+                className="flex items-center gap-2 focus:outline-none hover:bg-slate-800 p-2 rounded-lg transition-all duration-300 cursor-pointer"
             >
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-700 font-bold border border-green-200">
+                <div className="w-10 h-10 bg-brand-primary/20 rounded-full flex items-center justify-center text-brand-primary font-bold border border-brand-primary/30">
                     {firstInitial}
                 </div>
                 <div className="hidden sm:block text-left">
-                    <p className="text-sm font-semibold text-gray-700">{user.fullName || "User"}</p>
-                    <p className="text-xs text-gray-500 truncate max-w-[120px]">{user.email}</p>
+                    <p className="text-sm font-semibold text-slate-200">{user.fullName || "User"}</p>
+                    <p className="text-xs text-slate-400 truncate max-w-[120px]">{user.email}</p>
                 </div>
-                <ChevronDown size={16} className={`text-gray-400 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                <ChevronDown size={16} className={`text-slate-400 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
             </button>
 
             {/* Dropdown Menu */}
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 animate-fade-in-down">
-                    <div className="px-4 py-2 border-b border-gray-50 mb-2">
-                        <p className="text-sm font-semibold text-gray-800">Signed in as</p>
-                        <p className="text-sm text-gray-500 truncate" title={user.email}>{user.email}</p>
+                <div className="absolute right-0 mt-2 w-56 bg-slate-800 rounded-xl shadow-lg border border-slate-700 py-2 z-50 animate-fade-in-down">
+                    <div className="px-4 py-2 border-b border-slate-700 mb-2">
+                        <p className="text-sm font-semibold text-slate-200">Signed in as</p>
+                        <p className="text-sm text-slate-400 truncate" title={user.email}>{user.email}</p>
                     </div>
 
                     <Link
-                        to="/profile" // Placeholder link
-                        className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors"
+                        to="/profile"
+                        className="flex items-center gap-3 px-4 py-2 text-slate-300 hover:bg-brand-primary/20 hover:text-brand-primary transition-all duration-300"
                         onClick={() => setIsOpen(false)}
                     >
                         <User size={18} />
@@ -69,19 +69,19 @@ const UserDropdown = () => {
                     </Link>
 
                     <Link
-                        to="/settings" // Placeholder link
-                        className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors"
+                        to="/settings"
+                        className="flex items-center gap-3 px-4 py-2 text-slate-300 hover:bg-brand-primary/20 hover:text-brand-primary transition-all duration-300"
                         onClick={() => setIsOpen(false)}
                     >
                         <Settings size={18} />
                         <span>Settings</span>
                     </Link>
 
-                    <div className="h-px bg-gray-100 my-2"></div>
+                    <div className="h-px bg-slate-700 my-2"></div>
 
                     <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-4 py-2 text-red-600 hover:bg-red-50 transition-colors text-left"
+                        className="w-full flex items-center gap-3 px-4 py-2 text-red-400 hover:bg-red-500/20 transition-all duration-300 text-left"
                     >
                         <LogOut size={18} />
                         <span>Sign out</span>

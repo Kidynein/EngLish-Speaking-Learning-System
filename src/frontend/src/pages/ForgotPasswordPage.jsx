@@ -17,19 +17,18 @@ function ForgotPasswordPage() {
       setEmail(""); // Clear input on success
     } catch (err) {
       console.error(err);
-      // Error handling is mostly done in api interceptor, but we can catch specific cases if needed
     } finally {
       setLoading(false);
     }
   };
   return (
-    <div className="min-h-screen flex items-center justify-center bg-green-900 px-4">
-      <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-emerald-50 p-8 shadow-sm">
+    <div className="min-h-screen flex items-center justify-center bg-slate-900 px-4">
+      <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-800 p-8 shadow-lg">
         {/* Lock Icon */}
         <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+          <div className="w-16 h-16 bg-brand-primary/20 rounded-full flex items-center justify-center">
             <svg
-              className="w-8 h-8 text-green-600"
+              className="w-8 h-8 text-brand-primary"
               viewBox="0 0 24 24"
               fill="currentColor"
             >
@@ -43,10 +42,10 @@ function ForgotPasswordPage() {
         </div>
 
         {/* Title & Description */}
-        <h1 className="text-2xl font-bold text-gray-900 text-center">
+        <h1 className="text-2xl font-bold text-white text-center">
           Reset your password
         </h1>
-        <p className="mt-2 text-sm text-gray-600 text-center">
+        <p className="mt-2 text-sm text-slate-400 text-center">
           Enter the email address associated with your account and we&apos;ll
           send you a link to reset your password.
         </p>
@@ -56,7 +55,7 @@ function ForgotPasswordPage() {
           <div className="space-y-2">
             <label
               htmlFor="reset-email"
-              className="text-sm font-semibold text-gray-900"
+              className="text-sm font-semibold text-slate-200"
             >
               Email address
             </label>
@@ -67,7 +66,7 @@ function ForgotPasswordPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               disabled={loading}
-              className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:bg-gray-100 disabled:text-gray-500"
+              className="w-full rounded-lg border border-slate-600 bg-slate-700 px-4 py-3 text-sm text-white placeholder:text-slate-400 focus:border-brand-tertiary focus:outline-none focus:ring-2 focus:ring-brand-tertiary/30 disabled:bg-slate-800 disabled:text-slate-500 transition-all duration-300"
               placeholder="you@example.com"
             />
           </div>
@@ -75,11 +74,11 @@ function ForgotPasswordPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-white hover:bg-green-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center"
+            className="w-full rounded-lg bg-brand-primary px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-brand-primary-dark transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center"
           >
             {loading ? (
               <>
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-slate-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -95,7 +94,7 @@ function ForgotPasswordPage() {
         <div className="mt-6 text-center">
           <Link
             to="/login"
-            className="text-sm font-semibold text-green-600 hover:text-green-700"
+            className="text-sm font-semibold text-brand-primary hover:text-brand-primary-light transition-colors duration-300"
           >
             ← Back to login
           </Link>

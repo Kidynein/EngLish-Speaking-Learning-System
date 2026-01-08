@@ -1,8 +1,448 @@
 @import "tailwindcss";
 
-body {
-  background-color: theme('colors.slate.950');
-  color: theme('colors.slate.50');
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+/* ======================
+   DESIGN SYSTEM - Color Tokens (Dark Mode)
+   ====================== */
+:root {
+  /* Primary Brand - Main identity, CTAs, Active states */
+  --color-primary: #72fa93;
+  --color-primary-dark: #5be87d;
+  --color-primary-light: #9ffbb5;
+
+  /* Secondary/Highlight - Hover, Success, Badges */
+  --color-secondary: #a0e548;
+  --color-secondary-dark: #8cd036;
+  --color-secondary-light: #b8f06a;
+
+  /* Tertiary/Accent - Decorative, Focus borders, Secondary links */
+  --color-tertiary: #9ac1f0;
+  --color-tertiary-dark: #7eaee8;
+  --color-tertiary-light: #b8d5f6;
+
+  /* Dark Mode Neutrals (default) */
+  --color-background: #0f172a;
+  --color-surface: #1e293b;
+  --color-surface-elevated: #334155;
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-text-muted: #94a3b8;
+  --color-border: #334155;
+
+  /* Semantic */
+  --color-error: #f87171;
+  --color-warning: #fb923c;
+  --color-success: var(--color-secondary);
 }
 
+/* ======================
+   LIGHT MODE THEME (Emerald/Green Style)
+   ====================== */
+:root.light-theme {
+  /* Light Mode Neutrals - Emerald theme */
+  --color-background: #d1fae5;
+  /* emerald-100 */
+  --color-surface: #ffffff;
+  --color-surface-elevated: #ecfdf5;
+  /* emerald-50 */
+  --color-text-primary: #14532d;
+  /* green-900 */
+  --color-text-secondary: #166534;
+  /* green-800 */
+  --color-text-muted: #16a34a;
+  /* green-600 */
+  --color-border: #86efac;
+  /* green-300 */
+
+  /* Brand colors adjusted for light mode */
+  --color-primary: #16a34a;
+  /* green-600 */
+  --color-primary-dark: #15803d;
+  /* green-700 */
+  --color-primary-light: #22c55e;
+  /* green-500 */
+
+  /* Semantic colors for light mode */
+  --color-error: #dc2626;
+  --color-warning: #ea580c;
+}
+
+/* ======================
+   Global Styles
+   ====================== */
+body {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* ======================
+   Theme-aware Background Override (Emerald/Green Light Theme)
+   When light-theme is active, override hard-coded slate colors to emerald
+   ====================== */
+
+/* Main page backgrounds - emerald-100 */
+.light-theme .bg-slate-900,
+.light-theme .min-h-screen.bg-slate-900 {
+  background-color: #d1fae5 !important;
+}
+
+/* Card/Surface backgrounds - white */
+.light-theme .bg-slate-800 {
+  background-color: #ffffff !important;
+  border-color: #86efac !important;
+}
+
+/* Semi-transparent slate backgrounds - light green surface */
+.light-theme .bg-slate-800\/50 {
+  background-color: #ecfdf5 !important;
+  /* emerald-50 */
+  border-color: #86efac !important;
+}
+
+/* Elevated surfaces - emerald-50 */
+.light-theme .bg-slate-700,
+.light-theme .bg-slate-700\/50 {
+  background-color: #ecfdf5 !important;
+}
+
+/* Text colors for light theme - matching original (gray-900, gray-600) */
+.light-theme .text-white {
+  color: #111827 !important;
+  /* gray-900 */
+}
+
+.light-theme .text-slate-300,
+.light-theme .text-slate-400 {
+  color: #4b5563 !important;
+  /* gray-600 */
+}
+
+.light-theme .text-slate-500 {
+  color: #6b7280 !important;
+  /* gray-500 */
+}
+
+/* Border colors for emerald light theme */
+.light-theme .border-slate-600,
+.light-theme .border-slate-700 {
+  border-color: #86efac !important;
+  /* green-300 */
+}
+
+/* Input and select backgrounds for emerald light theme */
+.light-theme input.bg-slate-700,
+.light-theme select.bg-slate-700,
+.light-theme textarea.bg-slate-700,
+.light-theme .bg-slate-700 input,
+.light-theme .bg-slate-700 select,
+.light-theme .bg-slate-700 textarea {
+  background-color: #ffffff !important;
+  border-color: #86efac !important;
+  color: #14532d !important;
+}
+
+/* Navbar and Header for emerald light theme */
+.light-theme .bg-slate-950\/80 {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-color: #86efac !important;
+}
+
+/* Brand buttons - green-600 like original */
+.light-theme .bg-brand-primary {
+  background-color: #16a34a !important;
+  /* green-600 */
+  color: #ffffff !important;
+}
+
+.light-theme .bg-brand-primary:hover {
+  background-color: #15803d !important;
+  /* green-700 */
+}
+
+/* Text brand-primary for light theme */
+.light-theme .text-brand-primary {
+  color: #16a34a !important;
+  /* green-600 */
+}
+
+/* Hover states for light theme */
+.light-theme .hover\:bg-slate-700:hover,
+.light-theme .hover\:bg-slate-600:hover {
+  background-color: #dcfce7 !important;
+  /* green-100 */
+}
+
+/* Active/selected states */
+.light-theme .bg-brand-primary\/20 {
+  background-color: rgba(22, 163, 74, 0.15) !important;
+}
+
+/* Brand tertiary for focus states */
+.light-theme .focus\:ring-brand-tertiary:focus,
+.light-theme .ring-brand-tertiary {
+  --tw-ring-color: #16a34a !important;
+  /* green-600 instead of blue */
+}
+
+.light-theme .focus\:border-brand-tertiary:focus {
+  border-color: #16a34a !important;
+  /* green-600 */
+}
+
+/* Gradient backgrounds - match original green gradients */
+.light-theme .bg-gradient-brand,
+.light-theme .from-brand-primary,
+.light-theme .to-brand-secondary {
+  background: linear-gradient(135deg, #16a34a, #22c55e) !important;
+}
+
+/* Card borders for light theme - gray instead of slate */
+.light-theme .border-slate-700,
+.light-theme .border-slate-600 {
+  border-color: #e5e7eb !important;
+  /* gray-200 */
+}
+
+/* Stat cards and topic cards backgrounds */
+.light-theme .bg-gradient-to-br,
+.light-theme .bg-linear-to-br {
+  background: linear-gradient(135deg, #f0fdf4, #ecfdf5) !important;
+  /* green-50 to emerald-50 */
+}
+
+/* Header specific - bg-white */
+.light-theme header,
+.light-theme .bg-slate-950\/80 {
+  background-color: #ffffff !important;
+  border-color: #e5e7eb !important;
+  /* gray-200 */
+}
+
+/* Logo container */
+.light-theme .bg-brand-primary.rounded-full,
+.light-theme .bg-green-100 {
+  background-color: #dcfce7 !important;
+  /* green-100 */
+}
+
+/* Dropdown menus */
+.light-theme .bg-slate-800.rounded-xl,
+.light-theme .bg-slate-800.rounded-lg {
+  background-color: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Dropdown text colors for light theme */
+.light-theme .text-slate-200 {
+  color: #111827 !important;
+  /* gray-900 - dark for headings */
+}
+
+.light-theme .text-slate-300 {
+  color: #374151 !important;
+  /* gray-700 - readable for menu items */
+}
+
+.light-theme .text-slate-400 {
+  color: #6b7280 !important;
+  /* gray-500 - muted text */
+}
+
+/* Input placeholder text */
+.light-theme input::placeholder,
+.light-theme textarea::placeholder {
+  color: #9ca3af !important;
+  /* gray-400 */
+}
+
+/* Scrollbar for light theme */
+.light-theme ::-webkit-scrollbar-track {
+  background: #f3f4f6;
+}
+
+.light-theme ::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+}
+
+.light-theme ::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* ======================
+   Recharts Overrides for Light Theme
+   ====================== */
+/* Chart container backgrounds */
+.light-theme .recharts-wrapper {
+  background-color: transparent !important;
+}
+
+/* Tooltip styling for light theme */
+.light-theme .recharts-tooltip-wrapper .recharts-default-tooltip {
+  background-color: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+.light-theme .recharts-tooltip-wrapper .recharts-tooltip-label {
+  color: #111827 !important;
+}
+
+.light-theme .recharts-tooltip-wrapper .recharts-tooltip-item {
+  color: #374151 !important;
+}
+
+/* Grid lines for light theme */
+.light-theme .recharts-cartesian-grid line {
+  stroke: #e5e7eb !important;
+}
+
+/* Axis labels and ticks */
+.light-theme .recharts-xAxis .recharts-cartesian-axis-tick-value,
+.light-theme .recharts-yAxis .recharts-cartesian-axis-tick-value {
+  fill: #6b7280 !important;
+}
+
+.light-theme .recharts-xAxis line,
+.light-theme .recharts-yAxis line {
+  stroke: #6b7280 !important;
+}
+
+/* Polar grid for radar charts */
+.light-theme .recharts-polar-grid-angle line {
+  stroke: #d1e7dd !important;
+}
+
+.light-theme .recharts-polar-grid-concentric path {
+  stroke: #d1e7dd !important;
+}
+
+.light-theme .recharts-polar-angle-axis-tick-value {
+  fill: #166534 !important;
+}
+
+/* ======================
+   Motion & Transitions
+   ====================== */
+button,
+a,
+input,
+select,
+textarea {
+  transition: all 0.3s ease-in-out;
+}
+
+button:hover:not(:disabled),
+a:hover {
+  filter: brightness(1.05);
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* ======================
+   Tailwind Custom Theme Extensions
+   ====================== */
+@theme {
+  /* Brand Colors */
+  --color-brand-primary: var(--color-primary);
+  --color-brand-primary-dark: var(--color-primary-dark);
+  --color-brand-primary-light: var(--color-primary-light);
+
+  --color-brand-secondary: var(--color-secondary);
+  --color-brand-secondary-dark: var(--color-secondary-dark);
+  --color-brand-secondary-light: var(--color-secondary-light);
+
+  --color-brand-tertiary: var(--color-tertiary);
+  --color-brand-tertiary-dark: var(--color-tertiary-dark);
+  --color-brand-tertiary-light: var(--color-tertiary-light);
+
+  /* Surface Colors */
+  --color-surface: var(--color-surface);
+  --color-surface-elevated: var(--color-surface-elevated);
+}
+
+/* ======================
+   Utility Classes for Brand Colors
+   ====================== */
+.bg-brand-primary {
+  background-color: var(--color-primary);
+}
+
+.bg-brand-primary-dark {
+  background-color: var(--color-primary-dark);
+}
+
+.bg-brand-primary-light {
+  background-color: var(--color-primary-light);
+}
+
+.bg-brand-secondary {
+  background-color: var(--color-secondary);
+}
+
+.bg-brand-secondary-dark {
+  background-color: var(--color-secondary-dark);
+}
+
+.bg-brand-secondary-light {
+  background-color: var(--color-secondary-light);
+}
+
+.bg-brand-tertiary {
+  background-color: var(--color-tertiary);
+}
+
+.bg-brand-tertiary-dark {
+  background-color: var(--color-tertiary-dark);
+}
+
+.bg-brand-tertiary-light {
+  background-color: var(--color-tertiary-light);
+}
+
+.text-brand-primary {
+  color: var(--color-primary);
+}
+
+.text-brand-primary-dark {
+  color: var(--color-primary-dark);
+}
+
+.text-brand-secondary {
+  color: var(--color-secondary);
+}
+
+.text-brand-tertiary {
+  color: var(--color-tertiary);
+}
+
+.border-brand-primary {
+  border-color: var(--color-primary);
+}
+
+.border-brand-secondary {
+  border-color: var(--color-secondary);
+}
+
+.border-brand-tertiary {
+  border-color: var(--color-tertiary);
+}
+
+/* Focus ring utilities */
+.focus-brand-tertiary:focus {
+  border-color: var(--color-tertiary);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-tertiary);
+}
+
+/* Gradient utilities */
+.bg-gradient-brand {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+}
+
+.bg-gradient-brand-subtle {
+  background: linear-gradient(135deg, rgba(114, 250, 147, 0.1), rgba(160, 229, 72, 0.1));
+}

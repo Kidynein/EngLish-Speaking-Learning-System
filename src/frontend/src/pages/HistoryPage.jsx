@@ -51,151 +51,153 @@ const HistoryPage = () => {
     };
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <h2 className="text-2xl font-semibold text-gray-600 mb-6">My Learning History</h2>
+        <div className="min-h-screen bg-slate-900">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <h2 className="text-2xl font-semibold text-white mb-6">My Learning History</h2>
 
-            {/* Filters */}
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-600 mb-2">Start Date</label>
-                        <input
-                            type="date"
-                            value={startDate}
-                            onChange={(e) => setStartDate(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-600 mb-2">End Date</label>
-                        <input
-                            type="date"
-                            value={endDate}
-                            onChange={(e) => setEndDate(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-600 mb-2">Exercise Type</label>
-                        <select
-                            value={typeFilter}
-                            onChange={(e) => setTypeFilter(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-                        >
-                            <option value="">All Types</option>
-                            <option value="pronunciation">Pronunciation</option>
-                            <option value="reading">Reading</option>
-                            <option value="speaking">Speaking</option>
-                        </select>
-                    </div>
-                    <div className="flex items-end">
-                        <button
-                            onClick={handleFilter}
-                            className="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-                        >
-                            Filter
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {/* History Table */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="overflow-x-auto">
-                    {loading ? (
-                        <div className="text-center py-8">
-                            <p className="text-gray-500">Loading history...</p>
+                {/* Filters */}
+                <div className="bg-slate-800 rounded-lg shadow-md p-6 mb-6 border border-slate-700">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-slate-300 mb-2">Start Date</label>
+                            <input
+                                type="date"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                                className="w-full px-3 py-2 border border-slate-600 rounded-md text-white bg-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-tertiary transition-all duration-300"
+                            />
                         </div>
-                    ) : (
-                        <>
-                            <table className="w-full table-auto">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Topic</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lesson</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Exercise</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Session Score</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {history.map(item => (
-                                        <tr key={item.id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(item.date)}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.topicName || 'N/A'}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.lessonName || 'N/A'}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-900">{item.exerciseContent ? item.exerciseContent.substring(0, 50) + '...' : 'N/A'}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                                                    {item.exerciseType || 'N/A'}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${item.score >= 80 ? 'bg-green-100 text-green-800' :
-                                                        item.score >= 60 ? 'bg-yellow-100 text-yellow-800' :
-                                                            'bg-red-100 text-red-800'
-                                                    }`}>
-                                                    {item.score || 0}/100
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${item.sessionScore >= 80 ? 'bg-green-100 text-green-800' :
-                                                        item.sessionScore >= 60 ? 'bg-yellow-100 text-yellow-800' :
-                                                            'bg-red-100 text-red-800'
-                                                    }`}>
-                                                    {item.sessionScore || 0}/100
-                                                </span>
-                                            </td>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-300 mb-2">End Date</label>
+                            <input
+                                type="date"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                                className="w-full px-3 py-2 border border-slate-600 rounded-md text-white bg-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-tertiary transition-all duration-300"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-300 mb-2">Exercise Type</label>
+                            <select
+                                value={typeFilter}
+                                onChange={(e) => setTypeFilter(e.target.value)}
+                                className="w-full px-3 py-2 border border-slate-600 rounded-md text-white bg-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-tertiary transition-all duration-300"
+                            >
+                                <option value="">All Types</option>
+                                <option value="pronunciation">Pronunciation</option>
+                                <option value="reading">Reading</option>
+                                <option value="speaking">Speaking</option>
+                            </select>
+                        </div>
+                        <div className="flex items-end">
+                            <button
+                                onClick={handleFilter}
+                                className="w-full bg-brand-primary text-slate-900 px-4 py-2 rounded-md hover:bg-brand-primary-dark focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all duration-300 font-medium"
+                            >
+                                Filter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* History Table */}
+                <div className="bg-slate-800 rounded-lg shadow-md overflow-hidden border border-slate-700">
+                    <div className="overflow-x-auto">
+                        {loading ? (
+                            <div className="text-center py-8">
+                                <p className="text-slate-400">Loading history...</p>
+                            </div>
+                        ) : (
+                            <>
+                                <table className="w-full table-auto">
+                                    <thead className="bg-slate-700/50">
+                                        <tr>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Date</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Topic</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Lesson</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Exercise</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Type</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Score</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Session Score</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody className="bg-slate-800 divide-y divide-slate-700">
+                                        {history.map(item => (
+                                            <tr key={item.id} className="hover:bg-slate-700/50 transition-colors duration-200">
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{formatDate(item.date)}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{item.topicName || 'N/A'}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{item.lessonName || 'N/A'}</td>
+                                                <td className="px-6 py-4 text-sm text-slate-300">{item.exerciseContent ? item.exerciseContent.substring(0, 50) + '...' : 'N/A'}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-brand-tertiary/20 text-brand-tertiary">
+                                                        {item.exerciseType || 'N/A'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${item.score >= 80 ? 'bg-brand-primary/20 text-brand-primary' :
+                                                        item.score >= 60 ? 'bg-brand-secondary/20 text-brand-secondary' :
+                                                            'bg-red-500/20 text-red-400'
+                                                        }`}>
+                                                        {item.score || 0}/100
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${item.sessionScore >= 80 ? 'bg-brand-primary/20 text-brand-primary' :
+                                                        item.sessionScore >= 60 ? 'bg-brand-secondary/20 text-brand-secondary' :
+                                                            'bg-red-500/20 text-red-400'
+                                                        }`}>
+                                                        {item.sessionScore || 0}/100
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
 
-                            {history.length === 0 && (
-                                <div className="text-center py-8">
-                                    <p className="text-gray-500">No history found. Start practicing to see your progress!</p>
-                                </div>
-                            )}
-                        </>
-                    )}
+                                {history.length === 0 && (
+                                    <div className="text-center py-8">
+                                        <p className="text-slate-400">No history found. Start practicing to see your progress!</p>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
                 </div>
-            </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-                <div className="flex justify-center items-center space-x-2 mt-6">
-                    <button
-                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                        disabled={currentPage === 1}
-                        className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        Previous
-                    </button>
-
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className="flex justify-center items-center space-x-2 mt-6">
                         <button
-                            key={page}
-                            onClick={() => setCurrentPage(page)}
-                            className={`px-3 py-2 text-sm font-medium rounded-md ${currentPage === page
-                                    ? 'text-white bg-blue-600 border border-blue-600'
-                                    : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-                                }`}
+                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                            className="px-3 py-2 text-sm font-medium text-slate-300 bg-slate-800 border border-slate-600 rounded-md hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
                         >
-                            {page}
+                            Previous
                         </button>
-                    ))}
 
-                    <button
-                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                        disabled={currentPage === totalPages}
-                        className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        Next
-                    </button>
-                </div>
-            )}
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                            <button
+                                key={page}
+                                onClick={() => setCurrentPage(page)}
+                                className={`px-3 py-2 text-sm font-medium rounded-md transition-all duration-300 ${currentPage === page
+                                    ? 'text-slate-900 bg-brand-primary border border-brand-primary'
+                                    : 'text-slate-300 bg-slate-800 border border-slate-600 hover:bg-slate-700'
+                                    }`}
+                            >
+                                {page}
+                            </button>
+                        ))}
+
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage === totalPages}
+                            className="px-3 py-2 text-sm font-medium text-slate-300 bg-slate-800 border border-slate-600 rounded-md hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                        >
+                            Next
+                        </button>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
