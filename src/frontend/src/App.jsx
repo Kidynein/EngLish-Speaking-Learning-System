@@ -7,6 +7,7 @@ import {
   HistoryPage,
   LoginPage,
   ForgotPasswordPage,
+  ResetPasswordPage,
   DashboardPage,
   LandingPage,
   PracticePage,
@@ -32,6 +33,7 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
           </Route>
 
           {/* Protected Routes - Only for Authenticated Users */}
