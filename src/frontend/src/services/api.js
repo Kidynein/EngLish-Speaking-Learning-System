@@ -3,11 +3,11 @@ import { toast } from 'react-toastify';
 
 // Create Axios Instance
 const api = axios.create({
-    baseURL: '/api', // Proxy will handle forwarding to http://localhost:5000
+    baseURL: import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api',
     headers: {
         'Content-Type': 'application/json',
     },
-    timeout: 10000,
+    timeout: 30000,
 });
 
 // Request Interceptor: Attach Token

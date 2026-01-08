@@ -2,18 +2,21 @@ const mysql = require('mysql2');
 const dotenv = require('dotenv');
 const path = require('path');
 
-
-const envPath = path.resolve(__dirname, './test.env');
-dotenv.config({ path: envPath });
-
+// Load environment variables
+if (process.env.NODE_ENV === 'production') {
+    dotenv.config();
+} else {
+    const envPath = path.resolve(__dirname, './test.env');
+    dotenv.config({ path: envPath });
+}
 
 console.log("------- CHECK CONNECTION CONFIG -------");
-console.log("1. Đang đọc file .env tại:", envPath);
-console.log("2. DB_HOST đọc được là:", process.env.DB_HOST); // Nếu cái này hiện undefined là lỗi
-console.log("3. DB_PORT đọc được là:", process.env.DB_PORT);
+console.log("1. NODE_ENV:", process.env.NODE_ENV);
+console.log("2. DB_HOST:", process.env.DB_HOST);
+console.log("3. DB_PORT:", process.env.DB_PORT);
 console.log("---------------------------------------");
 
-const pool = mysql.createPool({
+const poolConfig = {
     host: process.env.DB_HOST || 'localhost',
     port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306,
     user: process.env.DB_USER || 'root',
@@ -22,6 +25,26 @@ const pool = mysql.createPool({
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
-});
+};
 
+// Add SSL config for production
+if (process.env.NODE_ENV === 'production') {
+    poolConfig.ssl = {
+        rejectUnauthorized: false
+    };
+    console.log("✅ SSL enabled for production database");
+}
+
+const pool = mysql.createPool(poolConfig);
+// Test connection
+pool.getConnection((err, connection) => {
+    if (err) {
+        console.error('❌ Database connection failed:', err.message);
+        console.error('Error code:', err.code);
+        console.error('Error details:', err);
+    } else {
+        console.log('✅ Database connected successfully');
+        connection.release();
+    }
+});
 module.exports = pool.promise();
