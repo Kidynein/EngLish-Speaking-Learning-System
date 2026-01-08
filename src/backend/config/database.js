@@ -36,5 +36,15 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const pool = mysql.createPool(poolConfig);
-
+// Test connection
+pool.getConnection((err, connection) => {
+    if (err) {
+        console.error('❌ Database connection failed:', err.message);
+        console.error('Error code:', err.code);
+        console.error('Error details:', err);
+    } else {
+        console.log('✅ Database connected successfully');
+        connection.release();
+    }
+});
 module.exports = pool.promise();
