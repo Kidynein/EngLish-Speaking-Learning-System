@@ -28,10 +28,11 @@ const poolConfig = {
 };
 
 // Add SSL config for production
-if (process.env.NODE_ENV === 'production' && process.env.DB_SSL === 'true') {
+if (process.env.NODE_ENV === 'production') {
     poolConfig.ssl = {
-        rejectUnauthorized: true
+        rejectUnauthorized: false
     };
+    console.log("✅ SSL enabled for production database");
 }
 
 const pool = mysql.createPool(poolConfig);
