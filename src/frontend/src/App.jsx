@@ -13,6 +13,7 @@ import {
   AdminUserManagementPage,
   AdminExerciseManagementPage,
   ProfilePage,
+  SettingsPage,
 } from "./pages";
 import { AuthProvider } from "./context/auth-context";
 import ProtectedRoute from "./components/routes/ProtectedRoute";
@@ -42,6 +43,7 @@ function App() {
               <Route path="/my-progress" element={<ProgressPage />} />
               <Route path="/history" element={<HistoryPage />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/settings" element={<SettingsPage />} />
             </Route>
           </Route>
 
