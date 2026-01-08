@@ -4,6 +4,7 @@ import ProgressPage from "./ProgressPage";
 import HistoryPage from "./HistoryPage";
 import LoginPage from "./LoginPage";
 import ForgotPasswordPage from "./ForgotPasswordPage";
+import ResetPasswordPage from "./ResetPasswordPage";
 import DashboardPage from "./DashboardPage";
 import LandingPage from "./LandingPage";
 import PracticePage from "./PracticePage";
@@ -19,6 +20,7 @@ export {
     HistoryPage,
     LoginPage,
     ForgotPasswordPage,
+    ResetPasswordPage,
     DashboardPage,
     LandingPage,
     PracticePage,
