@@ -1,9 +1,14 @@
 import { NavLink, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { usePremium } from "../context/PremiumContext";
 import UserDropdown from "./UserDropdown";
 
 const Header = () => {
   const { user } = useAuth();
+  const { isPremium, isPro, subscription } = usePremium();
+
+  // Show upgrade button only for free users
+  const showUpgradeButton = user && !isPremium && !isPro;
 
   return (
     <header className="bg-white py-4 px-6 shadow-sm sticky top-0 z-50">
@@ -60,7 +65,23 @@ const Header = () => {
         </nav>
 
         {/* User Action Area */}
-        <div>
+        <div className="flex items-center gap-4">
+          {/* Premium Badge or Upgrade Button */}
+          {user && (isPremium || isPro) ? (
+            <span className={`hidden sm:inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${
+              isPro 
+                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' 
+                : 'bg-gradient-to-r from-emerald-500 to-green-500 text-white'
+            }`}>
+              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
+              {isPro ? 'Pro' : 'Premium'}
+            </span>
+          ) : showUpgradeButton && (
+            <UpgradeButton />
+          )}
+
           {user ? (
             <UserDropdown />
           ) : (
@@ -76,4 +97,26 @@ const Header = () => {
     </header>
   );
 };
+
+// Separate component for upgrade button to use context properly
+const UpgradeButton = () => {
+  const { openPremiumModal } = usePremium();
+  
+  const handleUpgradeClick = () => {
+    openPremiumModal();
+  };
+
+  return (
+    <button
+      onClick={handleUpgradeClick}
+      className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white text-xs font-semibold rounded-full transition-all shadow-sm hover:shadow-md"
+    >
+      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+      </svg>
+      Nâng cấp
+    </button>
+  );
+};
+
 export default Header;
