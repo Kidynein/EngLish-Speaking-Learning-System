@@ -6,14 +6,14 @@ const Header = () => {
   const { user } = useAuth();
 
   return (
-    <header className="bg-white py-4 px-6 shadow-sm sticky top-0 z-50">
+    <header className="bg-slate-900 py-4 px-6 shadow-lg border-b border-slate-800 sticky top-0 z-50">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         {/* Logo Area */}
         <Link to="/dashboard" className="flex items-center gap-3 no-underline">
-          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 font-bold">
+          <div className="w-8 h-8 bg-brand-primary/20 rounded-full flex items-center justify-center text-brand-primary font-bold">
             E
           </div>
-          <span className="font-bold text-gray-800 text-lg hidden sm:block">
+          <span className="font-bold text-white text-lg hidden sm:block">
             English Learning Speaking System
           </span>
         </Link>
@@ -25,8 +25,8 @@ const Header = () => {
             to="/dashboard"
             className={({ isActive }) =>
               isActive
-                ? "text-green-600 font-bold"
-                : "text-gray-500 hover:text-green-600 transition-colors"
+                ? "text-brand-primary font-bold transition-colors duration-300"
+                : "text-slate-400 hover:text-brand-primary transition-colors duration-300"
             }
           >
             Home
@@ -38,8 +38,8 @@ const Header = () => {
                 to="/my-progress"
                 className={({ isActive }) =>
                   isActive
-                    ? "text-green-600 font-bold"
-                    : "text-gray-500 hover:text-green-600 transition-colors"
+                    ? "text-brand-primary font-bold transition-colors duration-300"
+                    : "text-slate-400 hover:text-brand-primary transition-colors duration-300"
                 }
               >
                 My Progress
@@ -49,8 +49,8 @@ const Header = () => {
                 to="/history"
                 className={({ isActive }) =>
                   isActive
-                    ? "text-green-600 font-bold"
-                    : "text-gray-500 hover:text-green-600 transition-colors"
+                    ? "text-brand-primary font-bold transition-colors duration-300"
+                    : "text-slate-400 hover:text-brand-primary transition-colors duration-300"
                 }
               >
                 History
@@ -66,7 +66,7 @@ const Header = () => {
           ) : (
             <Link
               to="/login"
-              className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-slate-900 bg-brand-primary rounded-lg hover:bg-brand-primary-dark transition-all duration-300"
             >
               Login
             </Link>

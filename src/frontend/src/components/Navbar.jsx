@@ -2,14 +2,14 @@ import { Link, NavLink } from "react-router-dom";
 
 function Navbar() {
   const linkClass =
-    "text-sm font-medium px-3 py-2 rounded-xl hover:bg-slate-800 transition-colors";
-  const activeClass = "bg-slate-800 text-cyan-400";
+    "text-sm font-medium px-3 py-2 rounded-xl hover:bg-slate-800 transition-all duration-300";
+  const activeClass = "bg-slate-800 text-brand-primary";
 
   return (
-    <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur">
+    <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur">
       <div className="mx-auto max-w-6xl flex items-center justify-between px-4 py-3">
         <Link to="/dashboard" className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-xl bg-cyan-500 flex items-center justify-center font-bold text-slate-950">
+          <div className="h-8 w-8 rounded-xl bg-brand-primary flex items-center justify-center font-bold text-slate-900">
             E
           </div>
           <span className="text-sm font-semibold tracking-tight text-slate-50">
