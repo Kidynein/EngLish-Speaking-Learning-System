@@ -1,61 +1,81 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from 'react';
 
 const ThemeContext = createContext();
 
-export const useTheme = () => {
-    const context = useContext(ThemeContext);
-    if (!context) {
-        throw new Error("useTheme must be used within a ThemeProvider");
-    }
-    return context;
-};
-
 export const ThemeProvider = ({ children }) => {
-    // Initialize from localStorage or system preference
-    const [darkMode, setDarkMode] = useState(() => {
-        const saved = localStorage.getItem('darkMode');
-        if (saved !== null) {
-            return JSON.parse(saved);
-        }
+    // Initialize theme from localStorage or default to 'dark'
+    const [theme, setTheme] = useState(() => {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) return savedTheme;
         // Check system preference
-        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+            return 'light';
+        }
+        return 'dark';
     });
 
-    // Apply dark mode class to document
+    // Theme override state (for specific pages like Landing Page)
+    const [overrideTheme, setOverrideTheme] = useState(null);
+
+    // Apply theme class to document root - considers override
     useEffect(() => {
         const root = document.documentElement;
-        if (darkMode) {
-            root.classList.add('dark');
-        } else {
-            root.classList.remove('dark');
-        }
-        localStorage.setItem('darkMode', JSON.stringify(darkMode));
-    }, [darkMode]);
+        // Determine the effective theme: override takes precedence
+        const effectiveTheme = overrideTheme || theme;
 
-    // Listen for system preference changes
+        if (effectiveTheme === 'light') {
+            root.classList.add('light-theme');
+        } else {
+            root.classList.remove('light-theme');
+        }
+    }, [theme, overrideTheme]);
+
+    // Persist user preference to localStorage (ignore override)
     useEffect(() => {
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        localStorage.setItem('theme', theme);
+    }, [theme]);
+
+    // Handle system theme changes (for 'auto' mode)
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: light)');
         const handleChange = (e) => {
-            const savedPreference = localStorage.getItem('darkMode');
-            // Only auto-switch if user hasn't manually set preference
-            if (savedPreference === null) {
-                setDarkMode(e.matches);
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'auto' || !savedTheme) {
+                setTheme(e.matches ? 'light' : 'dark');
             }
         };
-        
+
         mediaQuery.addEventListener('change', handleChange);
         return () => mediaQuery.removeEventListener('change', handleChange);
     }, []);
 
-    const toggleDarkMode = () => {
-        setDarkMode(prev => !prev);
+    const toggleTheme = () => {
+        setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+    };
+
+    const setThemeMode = (mode) => {
+        if (mode === 'auto') {
+            const isLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+            setTheme(isLight ? 'light' : 'dark');
+            localStorage.setItem('theme', 'auto');
+        } else {
+            setTheme(mode);
+        }
     };
 
     return (
-        <ThemeContext.Provider value={{ darkMode, setDarkMode, toggleDarkMode }}>
+        <ThemeContext.Provider value={{ theme, toggleTheme, setThemeMode, setOverrideTheme }}>
             {children}
         </ThemeContext.Provider>
     );
+};
+
+export const useTheme = () => {
+    const context = useContext(ThemeContext);
+    if (!context) {
+        throw new Error('useTheme must be used within a ThemeProvider');
+    }
+    return context;
 };
 
 export default ThemeContext;

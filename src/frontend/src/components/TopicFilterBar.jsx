@@ -86,13 +86,13 @@ const TopicFilterBar = ({ onSearch, onFilterChange, currentFilters, className = 
                 <div className="relative flex-grow section-search-bar w-full md:w-auto" ref={wrapperRef}>
                     <form onSubmit={handleSubmit} className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg className={`h-5 w-5 ${isSearching ? 'text-green-600 animate-pulse' : 'text-green-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className={`h-5 w-5 ${isSearching ? 'text-brand-primary animate-pulse' : 'text-brand-primary'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </div>
                         <input
                             type="text"
-                            className="block w-full pl-10 pr-10 py-3 border border-green-200 rounded-xl leading-5 bg-white placeholder-green-800 text-green-800 focus:outline-none focus:placeholder-green-400 focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-200 sm:text-sm font-medium shadow-sm hover:shadow-md"
+                            className="block w-full pl-10 pr-10 py-3 border border-slate-600 rounded-xl leading-5 bg-slate-800 placeholder-slate-400 text-white focus:outline-none focus:placeholder-slate-500 focus:border-brand-tertiary focus:ring-2 focus:ring-brand-tertiary/30 transition-all duration-300 sm:text-sm font-medium shadow-sm hover:border-slate-500"
                             placeholder="Find a topic (e.g. Business, Travel)..."
                             value={inputValue}
                             onChange={(e) => {
@@ -112,7 +112,7 @@ const TopicFilterBar = ({ onSearch, onFilterChange, currentFilters, className = 
                                     onSearch('');
                                     setSuggestions([]);
                                 }}
-                                className="absolute inset-y-0 right-0 pr-3 flex items-center text-green-400 hover:text-green-600 cursor-pointer transition-colors"
+                                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-brand-primary cursor-pointer transition-colors duration-300"
                             >
                                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -129,23 +129,23 @@ const TopicFilterBar = ({ onSearch, onFilterChange, currentFilters, className = 
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 exit={{ opacity: 0, y: 5, scale: 0.98 }}
                                 transition={{ duration: 0.2 }}
-                                className="absolute z-50 mt-2 w-full bg-white shadow-xl max-h-60 rounded-xl py-2 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm border border-gray-100"
+                                className="absolute z-50 mt-2 w-full bg-slate-800 shadow-xl max-h-60 rounded-xl py-2 text-base ring-1 ring-slate-700 overflow-auto focus:outline-none sm:text-sm border border-slate-700"
                             >
                                 {suggestions.map((topic) => (
                                     <li
                                         key={topic.id}
-                                        className="cursor-pointer select-none relative py-3 pl-4 pr-4 hover:bg-green-50 text-gray-800 transition-colors duration-150 border-b border-gray-50 last:border-0"
+                                        className="cursor-pointer select-none relative py-3 pl-4 pr-4 hover:bg-brand-primary/20 text-slate-200 transition-colors duration-200 border-b border-slate-700 last:border-0"
                                         onClick={() => handleSuggestionClick(topic.name)}
                                     >
                                         <div className="flex items-center justify-between">
-                                            <span className="font-medium block truncate text-gray-700">
+                                            <span className="font-medium block truncate text-slate-200">
                                                 {topic.name}
                                             </span>
                                             {topic.difficultyLevel && (
                                                 <span className={`ml-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide
-                                                    ${topic.difficultyLevel.toLowerCase() === 'advanced' ? 'bg-red-100 text-red-700' :
-                                                        topic.difficultyLevel.toLowerCase() === 'intermediate' ? 'bg-yellow-100 text-yellow-700' :
-                                                            'bg-green-100 text-green-700'}`}>
+                                                    ${topic.difficultyLevel.toLowerCase() === 'advanced' ? 'bg-red-500/20 text-red-400' :
+                                                        topic.difficultyLevel.toLowerCase() === 'intermediate' ? 'bg-yellow-500/20 text-yellow-400' :
+                                                            'bg-brand-primary/20 text-brand-primary'}`}>
                                                     {topic.difficultyLevel}
                                                 </span>
                                             )}
@@ -163,14 +163,14 @@ const TopicFilterBar = ({ onSearch, onFilterChange, currentFilters, className = 
                         <select
                             value={currentFilters.level}
                             onChange={(e) => onFilterChange('level', e.target.value)}
-                            className="appearance-none block w-full pl-4 pr-10 py-3 border border-green-200 bg-white text-green-800 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-100 focus:border-green-500 sm:text-sm font-medium transition-all shadow-sm hover:border-green-400 hover:shadow-md cursor-pointer"
+                            className="appearance-none block w-full pl-4 pr-10 py-3 border border-slate-600 bg-slate-800 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-tertiary/30 focus:border-brand-tertiary sm:text-sm font-medium transition-all duration-300 shadow-sm hover:border-slate-500 cursor-pointer"
                         >
-                            <option value="all" className="text-gray-600">All Levels</option>
-                            <option value="beginner" className="text-green-600 font-medium">Beginner</option>
-                            <option value="intermediate" className="text-yellow-600 font-medium">Intermediate</option>
-                            <option value="advanced" className="text-red-600 font-medium">Advanced</option>
+                            <option value="all" className="bg-slate-800">All Levels</option>
+                            <option value="beginner" className="bg-slate-800">Beginner</option>
+                            <option value="intermediate" className="bg-slate-800">Intermediate</option>
+                            <option value="advanced" className="bg-slate-800">Advanced</option>
                         </select>
-                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-green-600">
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-brand-primary">
                             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                             </svg>
@@ -185,7 +185,7 @@ const TopicFilterBar = ({ onSearch, onFilterChange, currentFilters, className = 
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.9 }}
                                 onClick={handleReset}
-                                className="px-4 py-3 text-sm font-medium text-green-700 bg-green-50 rounded-xl hover:bg-green-100 hover:text-green-800 transition-colors border border-green-200"
+                                className="px-4 py-3 text-sm font-medium text-brand-primary bg-brand-primary/20 rounded-xl hover:bg-brand-primary/30 transition-all duration-300 border border-brand-primary/30"
                             >
                                 Reset
                             </motion.button>

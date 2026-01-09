@@ -50,19 +50,9 @@ function SignupPage() {
         formData.email,
         formData.password
       );
-      // Registration successful.
-      // Option 1: Auto login (save token if returned)
-      // Option 2: Redirect to login page
-      // For now, let's redirect to login with a success message or just dashboard if it auto-logs in.
-      // Usually signup just creates account. Let's redirect to login for safety/simplicity unless specified otherwise.
-      // But prompt said "navigate("/dashboard")" in original code.
-      // Let's stick to Dashboard if it returns a token, or Login if not.
-      // actually, let's redirect to Login to force sign in, or Dashboard if we implement token saving here too.
-      // Let's redirect to Login for now to be clear.
       navigate("/login");
     } catch (err) {
       console.error("Signup failed:", err);
-      // Hiển thị lỗi từ backend (ví dụ: Email đã tồn tại)
       const errorMessage = err.response?.data?.message || err.message || "Registration failed. Please try again.";
       setError(errorMessage);
     } finally {
@@ -71,40 +61,44 @@ function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left: Illustration Section - Green Background */}
-      <div className="hidden lg:flex lg:w-1/2 bg-emerald-100 flex-col items-center justify-center p-12">
-        <div className="w-full max-w-lg">
+    <div className="min-h-screen flex bg-slate-900">
+      {/* Left: Illustration Section */}
+      <div className="hidden lg:flex lg:w-1/2 bg-slate-800 flex-col items-center justify-center p-12 relative overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute -top-24 -left-24 w-96 h-96 bg-brand-secondary rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-brand-tertiary rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+
+        <div className="w-full max-w-lg relative z-10">
           <img
             src="/assets/auth_illustration.png"
             alt="Start Learning"
             className="w-full h-auto object-contain drop-shadow-2xl"
           />
         </div>
-        <div className="mt-12 text-center">
-          <h2 className="text-3xl font-bold text-green-900 mb-4">Start Your Journey</h2>
-          <p className="text-green-700 text-lg">Create an account to access personalized lessons and AI feedback.</p>
+        <div className="mt-12 text-center relative z-10">
+          <h2 className="text-3xl font-bold text-white mb-4">Start Your Journey</h2>
+          <p className="text-slate-400 text-lg">Create an account to access personalized lessons and AI feedback.</p>
         </div>
       </div>
 
-      {/* Right: Signup Card Section - Pale Green Background */}
-      <div className="w-full lg:w-1/2 bg-emerald-100 flex flex-col items-center justify-center p-4 md:p-8">
-        <div className="w-full max-w-md bg-emerald-50 rounded-2xl shadow-lg p-8">
+      {/* Right: Signup Card Section */}
+      <div className="w-full lg:w-1/2 bg-slate-900 flex flex-col items-center justify-center p-4 md:p-8">
+        <div className="w-full max-w-md bg-slate-800 rounded-2xl shadow-lg p-8 border border-slate-700">
           {/* Signup Card */}
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-2xl font-bold text-white">
                 Create account
               </h2>
-              <p className="mt-1 text-sm text-green-600 font-medium">
+              <p className="mt-1 text-sm text-brand-primary font-medium">
                 Join us to start learning English speaking
               </p>
             </div>
 
             {/* Error Message */}
             {error && (
-              <div className="rounded-lg bg-red-50 border border-red-200 p-3">
-                <p className="text-sm text-red-700">{error}</p>
+              <div className="rounded-lg bg-red-500/20 border border-red-500/30 p-3">
+                <p className="text-sm text-red-400">{error}</p>
               </div>
             )}
 
@@ -112,7 +106,7 @@ function SignupPage() {
               <div className="space-y-2">
                 <label
                   htmlFor="fullName"
-                  className="text-sm font-semibold text-gray-900"
+                  className="text-sm font-semibold text-slate-200"
                 >
                   Full name
                 </label>
@@ -121,7 +115,7 @@ function SignupPage() {
                   type="text"
                   value={formData.fullName}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                  className="w-full rounded-lg border border-slate-600 bg-slate-700 px-4 py-3 text-sm text-white placeholder:text-slate-400 focus:border-brand-tertiary focus:outline-none focus:ring-2 focus:ring-brand-tertiary/30 transition-all duration-300"
                   placeholder="Pham Phat Loc"
                 />
               </div>
@@ -129,7 +123,7 @@ function SignupPage() {
               <div className="space-y-2">
                 <label
                   htmlFor="email"
-                  className="text-sm font-semibold text-gray-900"
+                  className="text-sm font-semibold text-slate-200"
                 >
                   Email address
                 </label>
@@ -138,7 +132,7 @@ function SignupPage() {
                   type="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                  className="w-full rounded-lg border border-slate-600 bg-slate-700 px-4 py-3 text-sm text-white placeholder:text-slate-400 focus:border-brand-tertiary focus:outline-none focus:ring-2 focus:ring-brand-tertiary/30 transition-all duration-300"
                   placeholder="you@example.com"
                 />
               </div>
@@ -146,7 +140,7 @@ function SignupPage() {
               <div className="space-y-2">
                 <label
                   htmlFor="password"
-                  className="text-sm font-semibold text-gray-900"
+                  className="text-sm font-semibold text-slate-200"
                 >
                   Password
                 </label>
@@ -155,16 +149,16 @@ function SignupPage() {
                   type="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                  className="w-full rounded-lg border border-slate-600 bg-slate-700 px-4 py-3 text-sm text-white placeholder:text-slate-400 focus:border-brand-tertiary focus:outline-none focus:ring-2 focus:ring-brand-tertiary/30 transition-all duration-300"
                   placeholder="••••••••"
                 />
-                <p className="text-xs text-gray-500">At least 8 characters</p>
+                <p className="text-xs text-slate-500">At least 8 characters</p>
               </div>
 
               <div className="space-y-2">
                 <label
                   htmlFor="confirmPassword"
-                  className="text-sm font-semibold text-gray-900"
+                  className="text-sm font-semibold text-slate-200"
                 >
                   Confirm password
                 </label>
@@ -173,7 +167,7 @@ function SignupPage() {
                   type="password"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                  className="w-full rounded-lg border border-slate-600 bg-slate-700 px-4 py-3 text-sm text-white placeholder:text-slate-400 focus:border-brand-tertiary focus:outline-none focus:ring-2 focus:ring-brand-tertiary/30 transition-all duration-300"
                   placeholder="••••••••"
                 />
               </div>
@@ -181,16 +175,16 @@ function SignupPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full mt-2 rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-white hover:bg-green-700 transition-colors disabled:bg-green-400"
+                className="w-full mt-2 rounded-lg bg-brand-primary px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-brand-primary-dark transition-all duration-300 disabled:bg-brand-primary/50 disabled:cursor-not-allowed"
               >
                 {loading ? "Creating account..." : "Create account"}
               </button>
             </form>
 
-            <div className="flex items-center gap-3 text-xs text-gray-500">
-              <div className="h-px flex-1 bg-gray-300" />
+            <div className="flex items-center gap-3 text-xs text-slate-500">
+              <div className="h-px flex-1 bg-slate-700" />
               <span className="uppercase tracking-wide">Or sign up with</span>
-              <div className="h-px flex-1 bg-gray-300" />
+              <div className="h-px flex-1 bg-slate-700" />
             </div>
 
             {/* OAuth Buttons */}
@@ -198,7 +192,7 @@ function SignupPage() {
               {/* Google Sign-Up Button */}
               <button
                 type="button"
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-600 bg-slate-700 px-4 py-3 text-sm font-medium text-white hover:bg-slate-600 transition-all duration-300"
               >
                 <svg
                   version="1.1"
@@ -218,7 +212,7 @@ function SignupPage() {
               {/* Facebook Sign-Up Button */}
               <button
                 type="button"
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-600 bg-slate-700 px-4 py-3 text-sm font-medium text-white hover:bg-slate-600 transition-all duration-300"
               >
                 <svg
                   className="w-5 h-5"
@@ -231,11 +225,11 @@ function SignupPage() {
               </button>
             </div>
 
-            <p className="text-center text-sm text-gray-600">
+            <p className="text-center text-sm text-slate-400">
               Already have an account?{" "}
               <Link
                 to="/login"
-                className="font-semibold text-green-600 hover:text-green-700"
+                className="font-semibold text-brand-primary hover:text-brand-primary-light transition-colors duration-300"
               >
                 Log in
               </Link>

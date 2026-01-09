@@ -11,6 +11,7 @@ import exerciseService from "../services/exercise.service";
 import userService from "../services/user.service";
 import practiceSessionService from "../services/practiceSession.service";
 import { toast } from "react-toastify";
+import PremiumPromoBanner from "../components/dashboard/PremiumPromoBanner.jsx";
 
 function DashboardPage() {
   const navigate = useNavigate();
@@ -175,7 +176,7 @@ function DashboardPage() {
   const totalMinutes = Math.round(stats.totalPracticeSeconds / 60);
 
   return (
-    <div className="min-h-screen bg-emerald-100">
+    <div className="min-h-screen bg-slate-900">
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
         {user.role === 'admin' ? (
           // Admin Dashboard
@@ -183,10 +184,10 @@ function DashboardPage() {
             <section className="mb-12 space-y-4">
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div className="space-y-2">
-                  <h1 className="text-4xl font-bold text-gray-900 flex items-center gap-2">
+                  <h1 className="text-4xl font-bold text-white flex items-center gap-2">
                     Admin Dashboard 👑
                   </h1>
-                  <p className="text-base text-gray-600">
+                  <p className="text-base text-slate-400">
                     Manage users and exercises for the system
                   </p>
                 </div>
@@ -196,34 +197,34 @@ function DashboardPage() {
             <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2 mb-12">
               <div
                 onClick={() => navigate('/admin/users')}
-                className="bg-white rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-gray-100"
+                className="bg-slate-800 rounded-xl p-8 shadow-sm hover:shadow-lg hover:border-brand-tertiary/50 transition-all duration-300 cursor-pointer border border-slate-700"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-12 h-12 bg-brand-tertiary/20 rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-brand-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900">Manage Users</h3>
-                    <p className="text-gray-600">View, edit, and manage user accounts</p>
+                    <h3 className="text-xl font-semibold text-white">Manage Users</h3>
+                    <p className="text-slate-400">View, edit, and manage user accounts</p>
                   </div>
                 </div>
               </div>
 
               <div
                 onClick={() => navigate('/admin/exercises')}
-                className="bg-white rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-gray-100"
+                className="bg-slate-800 rounded-xl p-8 shadow-sm hover:shadow-lg hover:border-brand-primary/50 transition-all duration-300 cursor-pointer border border-slate-700"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-12 h-12 bg-brand-primary/20 rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-brand-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900">Manage Exercises</h3>
-                    <p className="text-gray-600">Create, edit, and organize exercises</p>
+                    <h3 className="text-xl font-semibold text-white">Manage Exercises</h3>
+                    <p className="text-slate-400">Create, edit, and organize exercises</p>
                   </div>
                 </div>
               </div>
@@ -235,20 +236,23 @@ function DashboardPage() {
             <section className="mb-12 space-y-4">
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div className="space-y-2">
-                  <h1 className="text-4xl font-bold text-gray-900 flex items-center gap-2">
+                  <h1 className="text-4xl font-bold text-white flex items-center gap-2">
                     Welcome back, {user.fullName || 'Learner'}! 👋
                   </h1>
-                  <p className="text-base text-gray-600">
+                  <p className="text-base text-slate-400">
                     Keep practicing and improve your speaking skills
                   </p>
                 </div>
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 w-fit border border-green-100/50 shadow-sm hover:shadow-md transition-shadow">
-                  <p className="text-xs font-semibold text-green-700 uppercase tracking-wide">Day Streak 🔥</p>
-                  <p className="text-3xl font-bold text-green-600 mt-2">{stats.currentStreak}</p>
-                  <p className="text-xs text-green-600 mt-1">Keep it going!</p>
+                <div className="bg-slate-800/50 rounded-xl p-6 w-fit border border-brand-secondary/30 shadow-sm hover:shadow-md hover:border-brand-secondary/50 transition-all duration-300">
+                  <p className="text-xs font-semibold text-brand-secondary uppercase tracking-wide">Day Streak 🔥</p>
+                  <p className="text-3xl font-bold text-brand-secondary mt-2">{stats.currentStreak}</p>
+                  <p className="text-xs text-slate-400 mt-1">Keep it going!</p>
                 </div>
               </div>
             </section>
+
+            {/* Premium Promo Banner */}
+            <PremiumPromoBanner />
 
             {/* Stats */}
             <section className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 mb-12">
@@ -256,13 +260,13 @@ function DashboardPage() {
                 label="Total Practice"
                 value={totalMinutes}
                 description="minutes total"
-                color="green"
+                color="primary"
               />
               <StatCard
                 label="Average Score"
                 value={`${Math.round(stats.averageScore)}%`}
                 description="overall performance"
-                color="green"
+                color="secondary"
               />
               {/* Temporary Placeholder or another stat if available */}
               <StatCard
@@ -277,7 +281,7 @@ function DashboardPage() {
             <section id="progress" className="mb-12 space-y-6 relative">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
+                  <h2 className="text-2xl font-bold text-white">
                     Choose a Topic to Practice
                   </h2>
                 </div>
@@ -298,11 +302,12 @@ function DashboardPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: (index % LimitTopic) * 0.05 }}
                       layout
+                      className="h-full"
                     >
                       <TopicCard
                         title={topic.name}
                         percent={topic.progress || 0} // Display real progress or 0
-                        color="from-green-500 to-emerald-600"
+                        color="from-brand-primary to-brand-secondary"
                         emoji="👋"
                         onClick={() => handleStartTopic(topic.id)}
                         isLoading={false}
@@ -328,13 +333,13 @@ function DashboardPage() {
               {!loading && hasMore && (
                 <div className="relative pt-8 pb-4 flex justify-center">
                   {/* Optional Gradient Mask Hint */}
-                  <div className="absolute -top-12 left-0 right-0 h-12 bg-gradient-to-t from-emerald-100/80 to-transparent pointer-events-none" />
+                  <div className="absolute -top-12 left-0 right-0 h-12 bg-gradient-to-t from-slate-900/80 to-transparent pointer-events-none" />
 
                   <button
                     onClick={handleLoadMore}
                     disabled={isLoadingMore}
-                    className="group relative px-8 py-3 rounded-full border border-green-500 text-green-700 font-medium 
-                               hover:bg-green-600 hover:text-white hover:border-transparent hover:shadow-lg hover:-translate-y-0.5
+                    className="group relative px-8 py-3 rounded-full border border-brand-primary text-brand-primary font-medium 
+                               hover:bg-brand-primary hover:text-slate-900 hover:border-transparent hover:shadow-lg hover:-translate-y-0.5
                                active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isLoadingMore ? (
@@ -354,32 +359,32 @@ function DashboardPage() {
               )}
 
               {!hasMore && topics.length > 0 && (
-                <div className="text-center py-8 text-gray-500 italic text-sm">
+                <div className="text-center py-8 text-slate-500 italic text-sm">
                   You have viewed all topics
                 </div>
               )}
 
               {!loading && topics.length === 0 && (
-                <div className="text-center py-12 text-gray-500">No topics found.</div>
+                <div className="text-center py-12 text-slate-500">No topics found.</div>
               )}
             </section>
 
             {/* Random Practice CTA */}
             <section
               id="challenge"
-              className="mt-16 bg-gradient-to-br from-green-50 via-emerald-50 to-green-50 border border-green-200/50 rounded-2xl p-8 sm:p-12 text-center shadow-sm hover:shadow-md transition-shadow"
+              className="mt-16 bg-slate-800/50 border border-brand-primary/20 rounded-2xl p-8 sm:p-12 text-center shadow-sm hover:shadow-md hover:border-brand-primary/40 transition-all duration-300"
             >
-              <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
+              <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3">
                 Ready for a Challenge?
               </h3>
-              <p className="text-base text-gray-600 mb-8 max-w-2xl mx-auto">
+              <p className="text-base text-slate-400 mb-8 max-w-2xl mx-auto">
                 Try our random practice mode to test your skills with sentences
                 at your current level.
               </p>
               <button
                 onClick={handleRandomPractice}
                 disabled={loading}
-                className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-3 text-base font-semibold text-white hover:from-green-700 hover:to-emerald-700 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center rounded-lg bg-brand-primary px-8 py-3 text-base font-semibold text-slate-900 hover:bg-brand-primary-dark active:scale-95 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {loading ? "Loading..." : "Start Random Practice"}
               </button>

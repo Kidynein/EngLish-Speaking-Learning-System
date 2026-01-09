@@ -109,12 +109,12 @@ export const PremiumProvider = ({ children }) => {
             setLoading(true);
             const data = await premiumService.getSubscription();
             setSubscription(data);
-            
+
             // Show premium modal for free users or expired subscriptions who haven't seen it yet
             const isExpired = data?.status === 'cancelled' && data?.endDate && new Date(data.endDate) <= new Date();
             const isFreeOrExpired = !data || data.plan === 'free' || data.status === 'expired' || isExpired;
             const hasNotSeenModal = localStorage.getItem('hasSeenPremiumModal') !== 'true';
-            
+
             if (isFreeOrExpired && hasNotSeenModal && user) {
                 // Delay showing modal to let the page load first
                 setTimeout(() => {
@@ -133,7 +133,7 @@ export const PremiumProvider = ({ children }) => {
         setShowPremiumModal(false);
         setHasSeenPremiumModal(true);
         localStorage.setItem('hasSeenPremiumModal', 'true');
-        
+
         if (upgraded) {
             // Refresh subscription after upgrade
             fetchSubscription();
@@ -155,27 +155,27 @@ export const PremiumProvider = ({ children }) => {
      */
     const isSubscriptionValid = () => {
         if (!subscription) return false;
-        
+
         // Active subscription is always valid
         if (subscription.status === 'active') return true;
-        
+
         // Cancelled subscription is valid until endDate
         if (subscription.status === 'cancelled' && subscription.endDate) {
             const endDate = new Date(subscription.endDate);
             return endDate > new Date();
         }
-        
+
         return false;
     };
 
     const getCurrentPlan = () => {
         if (!subscription) return PREMIUM_PLANS.FREE;
-        
+
         // Check if subscription is still valid (active or cancelled but within period)
         if (!isSubscriptionValid()) {
             return PREMIUM_PLANS.FREE;
         }
-        
+
         const planKey = subscription.plan?.toUpperCase() || 'FREE';
         return PREMIUM_PLANS[planKey] || PREMIUM_PLANS.FREE;
     };

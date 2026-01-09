@@ -17,10 +17,10 @@ const PORT = process.env.PORT || 3000;
 const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
 app.listen(PORT, HOST, async () => {
     console.log(`Server is running on http://${HOST}:${PORT}`);
-    
+
     // Initialize tables after server starts
     await initializeTables();
-    
+
     console.log(`API Documentation:`);
     console.log(`   - Auth: POST /api/auth/register, /api/auth/login`);
     console.log(`   - Topics: GET /api/topics, POST /api/topics (admin)`);
