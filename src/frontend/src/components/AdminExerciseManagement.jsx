@@ -92,6 +92,7 @@ const AdminExerciseManagement = () => {
         setShowEditModal(true);
     };
 
+    // Thêm try-catch chi tiết hơn trong handleSubmit
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!form.lessonId || !form.contentText || !form.type) {
@@ -100,18 +101,32 @@ const AdminExerciseManagement = () => {
         }
 
         try {
+            const submitData = {
+                lessonId: parseInt(form.lessonId),
+                contentText: form.contentText,
+                type: form.type,
+                orderIndex: parseInt(form.orderIndex) || 0
+            };
+
+            // Thêm các trường optional nếu có giá trị
+            if (form.ipaTranscription) submitData.ipaTranscription = form.ipaTranscription;
+            if (form.referenceAudioUrl) submitData.referenceAudioUrl = form.referenceAudioUrl;
+
+            console.log('Submitting data:', submitData); // Debug log
+
             if (editingExercise) {
-                await api.put(`/exercises/${editingExercise.id}`, form);
+                await api.put(`/exercises/${editingExercise.id}`, submitData);
                 toast.success('Exercise updated successfully');
                 setShowEditModal(false);
             } else {
-                await api.post('/exercises', form);
+                await api.post('/exercises', submitData);
                 toast.success('Exercise created successfully');
                 setShowCreateModal(false);
             }
             fetchExercises(currentPage);
         } catch (error) {
-            toast.error('Failed to save exercise');
+            console.error('Error saving exercise:', error.response || error);
+            toast.error(error.response?.data?.message || 'Failed to save exercise');
         }
     };
 
@@ -141,7 +156,7 @@ const AdminExerciseManagement = () => {
                             value={lessonIdFilter}
                             onChange={(e) => setLessonIdFilter(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && fetchExercises(1)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                         />
                     </div>
                     <div>
@@ -151,12 +166,12 @@ const AdminExerciseManagement = () => {
                                 setTypeFilter(e.target.value);
                                 fetchExercises(1);
                             }}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                         >
                             <option value="">All Types</option>
-                            <option value="pronunciation">Pronunciation</option>
-                            <option value="reading">Reading</option>
-                            <option value="speaking">Speaking</option>
+                            <option value="word">Word</option>
+                            <option value="sentence">Sentence</option>
+                            <option value="conversation">Conversation</option>
                         </select>
                     </div>
                     <div className="flex space-x-2">
@@ -260,7 +275,7 @@ const AdminExerciseManagement = () => {
                                         value={form.lessonId}
                                         onChange={(e) => setForm({ ...form, lessonId: e.target.value })}
                                         required
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                                     />
                                 </div>
                                 <div>
@@ -270,7 +285,7 @@ const AdminExerciseManagement = () => {
                                         value={form.contentText}
                                         onChange={(e) => setForm({ ...form, contentText: e.target.value })}
                                         required
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                                     />
                                 </div>
                                 <div>
@@ -279,7 +294,7 @@ const AdminExerciseManagement = () => {
                                         type="text"
                                         value={form.ipaTranscription}
                                         onChange={(e) => setForm({ ...form, ipaTranscription: e.target.value })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                                     />
                                 </div>
                                 <div>
@@ -288,7 +303,7 @@ const AdminExerciseManagement = () => {
                                         type="url"
                                         value={form.referenceAudioUrl}
                                         onChange={(e) => setForm({ ...form, referenceAudioUrl: e.target.value })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                                     />
                                 </div>
                                 <div>
@@ -297,12 +312,12 @@ const AdminExerciseManagement = () => {
                                         value={form.type}
                                         onChange={(e) => setForm({ ...form, type: e.target.value })}
                                         required
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                                     >
                                         <option value="">Select Type</option>
-                                        <option value="pronunciation">Pronunciation</option>
-                                        <option value="reading">Reading</option>
-                                        <option value="speaking">Speaking</option>
+                                        <option value="word">Word</option>
+                                        <option value="sentence">Sentence</option>
+                                        <option value="conversation">Conversation</option>
                                     </select>
                                 </div>
                                 <div>
@@ -310,8 +325,8 @@ const AdminExerciseManagement = () => {
                                     <input
                                         type="number"
                                         value={form.orderIndex}
-                                        onChange={(e) => setForm({ ...form, orderIndex: parseInt(e.target.value) })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        onChange={(e) => setForm({ ...form, orderIndex: parseInt(e.target.value) || 0 })}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                                     />
                                 </div>
                                 <div className="flex justify-end">
@@ -350,7 +365,7 @@ const AdminExerciseManagement = () => {
                                         value={form.lessonId}
                                         onChange={(e) => setForm({ ...form, lessonId: e.target.value })}
                                         required
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                                     />
                                 </div>
                                 <div>
@@ -360,7 +375,7 @@ const AdminExerciseManagement = () => {
                                         value={form.contentText}
                                         onChange={(e) => setForm({ ...form, contentText: e.target.value })}
                                         required
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                                     />
                                 </div>
                                 <div>
@@ -369,7 +384,7 @@ const AdminExerciseManagement = () => {
                                         type="text"
                                         value={form.ipaTranscription}
                                         onChange={(e) => setForm({ ...form, ipaTranscription: e.target.value })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                                     />
                                 </div>
                                 <div>
@@ -378,7 +393,7 @@ const AdminExerciseManagement = () => {
                                         type="url"
                                         value={form.referenceAudioUrl}
                                         onChange={(e) => setForm({ ...form, referenceAudioUrl: e.target.value })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                                     />
                                 </div>
                                 <div>
@@ -387,7 +402,7 @@ const AdminExerciseManagement = () => {
                                         value={form.type}
                                         onChange={(e) => setForm({ ...form, type: e.target.value })}
                                         required
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                                     >
                                         <option value="">Select Type</option>
                                         <option value="pronunciation">Pronunciation</option>
@@ -400,8 +415,8 @@ const AdminExerciseManagement = () => {
                                     <input
                                         type="number"
                                         value={form.orderIndex}
-                                        onChange={(e) => setForm({ ...form, orderIndex: parseInt(e.target.value) })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        onChange={(e) => setForm({ ...form, orderIndex: parseInt(e.target.value) || 0 })}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                                     />
                                 </div>
                                 <div className="flex justify-end">
