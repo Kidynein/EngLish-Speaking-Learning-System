@@ -1,15 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
+import { usePremium } from '../context/PremiumContext';
 import userService from '../services/user.service';
 import StatCard from '../components/StatCard';
 import { motion } from 'framer-motion';
 
 const ProfilePage = () => {
     const { user, updateUser } = useAuth();
+    const { subscription, isPremium, isPro, cancelSubscription, refreshSubscription, currentPlan, openPremiumModal } = usePremium();
     const [isEditingProfile, setIsEditingProfile] = useState(false);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [cancellingSubscription, setCancellingSubscription] = useState(false);
+    const [showCancelConfirm, setShowCancelConfirm] = useState(false);
     const fullNameInputRef = useRef(null);
     
     const [profileData, setProfileData] = useState(null);
@@ -131,6 +135,37 @@ const ProfilePage = () => {
         setIsEditingProfile(false);
         setProfileFormData({
             fullName: profileData?.fullName || ''
+        });
+    };
+
+    const handleCancelSubscription = async () => {
+        setCancellingSubscription(true);
+        try {
+            await cancelSubscription();
+            await refreshSubscription();
+            toast.success('Đã hủy gói Premium thành công');
+            setShowCancelConfirm(false);
+            // Force a small delay then refresh to ensure UI updates
+            setTimeout(() => {
+                refreshSubscription();
+            }, 500);
+        } catch (error) {
+            console.error('Cancel subscription error:', error);
+            // Show error message from server if available
+            const errorMessage = error.message || 'Không thể hủy gói. Vui lòng thử lại.';
+            toast.error(errorMessage);
+            setShowCancelConfirm(false);
+        } finally {
+            setCancellingSubscription(false);
+        }
+    };
+
+    const formatSubscriptionDate = (dateString) => {
+        if (!dateString) return 'N/A';
+        return new Date(dateString).toLocaleDateString('vi-VN', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
         });
     };
 
@@ -440,6 +475,238 @@ const ProfilePage = () => {
                         </div>
                     </div>
                 </div>
+            </motion.div>
+
+            {/* Premium Subscription Card */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.3 }}
+                className="bg-white rounded-xl shadow-md p-6 mt-6"
+            >
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <span className="text-2xl">⭐</span>
+                    Gói đăng ký Premium
+                </h3>
+
+                {/* Check if subscription is cancelled */}
+                {subscription?.status === 'cancelled' ? (
+                    // Cancelled Subscription
+                    <div className="space-y-4">
+                        <div className="p-4 rounded-xl border bg-orange-50 border-orange-200">
+                            <div className="flex items-center justify-between flex-wrap gap-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 rounded-full flex items-center justify-center bg-orange-100 text-orange-600">
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 className="text-lg font-bold text-orange-700">
+                                            Gói đã hủy
+                                        </h4>
+                                        <p className="text-sm text-gray-600">
+                                            Trạng thái: <span className="font-medium text-orange-600">Đã hủy</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Show when access ends */}
+                        {subscription?.endDate && (
+                            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                <div className="flex items-start gap-3">
+                                    <span className="text-xl">📅</span>
+                                    <div>
+                                        <p className="font-medium text-yellow-800">
+                                            Bạn vẫn có thể sử dụng các tính năng {subscription?.plan === 'pro' ? 'Pro' : 'Premium'} đến:
+                                        </p>
+                                        <p className="text-lg font-bold text-yellow-900 mt-1">
+                                            {formatSubscriptionDate(subscription.endDate)}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Upgrade again */}
+                        <div className="bg-gradient-to-r from-emerald-500 to-green-500 rounded-xl p-4 text-white">
+                            <h4 className="font-bold mb-1">🔄 Đăng ký lại?</h4>
+                            <p className="text-sm text-green-50 mb-3">
+                                Bạn có thể đăng ký lại gói Premium bất kỳ lúc nào
+                            </p>
+                            <button
+                                onClick={() => openPremiumModal()}
+                                className="px-4 py-2 bg-white text-emerald-600 font-semibold rounded-lg hover:bg-green-50 transition-colors"
+                            >
+                                Xem các gói Premium
+                            </button>
+                        </div>
+                    </div>
+                ) : (isPremium || isPro) ? (
+                    // Active Premium/Pro Subscription
+                    <div className="space-y-4">
+                        {/* Subscription Status */}
+                        <div className={`p-4 rounded-xl border ${
+                            isPro 
+                                ? 'bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200' 
+                                : 'bg-gradient-to-r from-emerald-50 to-green-50 border-emerald-200'
+                        }`}>
+                            <div className="flex items-center justify-between flex-wrap gap-4">
+                                <div className="flex items-center gap-3">
+                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white ${
+                                        isPro ? 'bg-gradient-to-r from-purple-500 to-pink-500' : 'bg-gradient-to-r from-emerald-500 to-green-500'
+                                    }`}>
+                                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 className={`text-lg font-bold ${isPro ? 'text-purple-700' : 'text-emerald-700'}`}>
+                                            {currentPlan?.name || (isPro ? 'Pro' : 'Premium')} Plan
+                                        </h4>
+                                        <p className="text-sm text-gray-600">
+                                            Trạng thái: <span className="font-medium text-green-600">Đang hoạt động</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <p className={`text-2xl font-bold ${isPro ? 'text-purple-600' : 'text-emerald-600'}`}>
+                                        ${subscription?.billingCycle === 'yearly' 
+                                            ? (currentPlan?.priceYearly || (isPro ? '199.99' : '99.99'))
+                                            : (currentPlan?.price || (isPro ? '19.99' : '9.99'))
+                                        }
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                        /{subscription?.billingCycle === 'yearly' ? 'năm' : 'tháng'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Subscription Details */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="p-3 bg-gray-50 rounded-lg">
+                                <p className="text-sm text-gray-600">Ngày bắt đầu</p>
+                                <p className="font-semibold text-gray-800">
+                                    {formatSubscriptionDate(subscription?.startDate)}
+                                </p>
+                            </div>
+                            <div className="p-3 bg-gray-50 rounded-lg">
+                                <p className="text-sm text-gray-600">Ngày hết hạn</p>
+                                <p className="font-semibold text-gray-800">
+                                    {formatSubscriptionDate(subscription?.endDate)}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Features */}
+                        <div className="border-t pt-4">
+                            <p className="text-sm font-medium text-gray-700 mb-2">Tính năng đang sử dụng:</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {currentPlan?.features?.slice(0, 6).map((feature, idx) => (
+                                    <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
+                                        <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        {feature}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Cancel Subscription Button */}
+                        <div className="border-t pt-4">
+                            {!showCancelConfirm ? (
+                                <button
+                                    onClick={() => setShowCancelConfirm(true)}
+                                    className="text-red-600 hover:text-red-700 text-sm font-medium transition-colors"
+                                >
+                                    Hủy gói đăng ký
+                                </button>
+                            ) : (
+                                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                                    <div className="flex items-start gap-3">
+                                        <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center text-red-600 flex-shrink-0">
+                                            ⚠️
+                                        </div>
+                                        <div className="flex-1">
+                                            <h4 className="font-semibold text-red-800">Xác nhận hủy gói</h4>
+                                            <p className="text-sm text-red-600 mt-1">
+                                                Bạn có chắc chắn muốn hủy gói {currentPlan?.name}? Bạn sẽ mất quyền truy cập các tính năng premium sau khi hủy.
+                                            </p>
+                                            <div className="flex gap-3 mt-4">
+                                                <button
+                                                    onClick={handleCancelSubscription}
+                                                    disabled={cancellingSubscription}
+                                                    className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                >
+                                                    {cancellingSubscription ? 'Đang hủy...' : 'Xác nhận hủy'}
+                                                </button>
+                                                <button
+                                                    onClick={() => setShowCancelConfirm(false)}
+                                                    disabled={cancellingSubscription}
+                                                    className="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-300 transition-colors"
+                                                >
+                                                    Giữ gói
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                ) : (
+                    // Free Plan
+                    <div className="space-y-4">
+                        <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-gray-500">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 className="text-lg font-bold text-gray-700">Gói Miễn phí</h4>
+                                    <p className="text-sm text-gray-500">Bạn đang sử dụng gói miễn phí với các tính năng cơ bản</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="border-t pt-4">
+                            <p className="text-sm font-medium text-gray-700 mb-2">Giới hạn gói Free:</p>
+                            <ul className="space-y-2 text-sm text-gray-600">
+                                <li className="flex items-center gap-2">
+                                    <span className="text-yellow-500">⚠️</span>
+                                    Chỉ 10 chủ đề
+                                </li>
+                                <li className="flex items-center gap-2">
+                                    <span className="text-yellow-500">⚠️</span>
+                                    5 buổi luyện tập mỗi ngày
+                                </li>
+                                <li className="flex items-center gap-2">
+                                    <span className="text-yellow-500">⚠️</span>
+                                    Phản hồi cơ bản
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div className="bg-gradient-to-r from-emerald-500 to-green-500 rounded-xl p-4 text-white">
+                            <h4 className="font-bold mb-1">🚀 Nâng cấp ngay!</h4>
+                            <p className="text-sm text-green-50 mb-3">
+                                Mở khóa toàn bộ tính năng với gói Premium hoặc Pro
+                            </p>
+                            <button
+                                onClick={() => openPremiumModal()}
+                                className="px-4 py-2 bg-white text-emerald-600 font-semibold rounded-lg hover:bg-green-50 transition-colors"
+                            >
+                                Xem các gói Premium
+                            </button>
+                        </div>
+                    </div>
+                )}
             </motion.div>
         </div>
     );
