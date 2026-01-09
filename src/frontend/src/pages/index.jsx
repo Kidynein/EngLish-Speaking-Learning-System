@@ -12,6 +12,8 @@ import AdminUserManagementPage from "./AdminUserManagementPage";
 import AdminExerciseManagementPage from "./AdminExerciseManagementPage";
 import ProfilePage from "./ProfilePage";
 import SettingsPage from "./SettingsPage";
+import PremiumCheckoutPage from "./PremiumCheckoutPage";
+import PremiumLandingPage from "./PremiumLandingPage";
 
 export {
     HomePage,
@@ -28,4 +30,6 @@ export {
     AdminExerciseManagementPage,
     ProfilePage,
     SettingsPage,
+    PremiumCheckoutPage,
+    PremiumLandingPage,
 };

@@ -45,6 +45,8 @@ app.use('/api', historyRoutes);
 app.use('/api/scoring', require('./routes/scoringRoutes'));
 app.use('/api/progress', require('./routes/progressRoutes'));
 app.use('/api/assessment', require('./routes/assessmentRoutes'));
+app.use('/api/premium', require('./routes/premiumRoutes'));
+app.use('/api/chat', require('./routes/chatRoutes'));
 
 // 404 handler
 app.use((req, res) => {

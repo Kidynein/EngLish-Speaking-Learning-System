@@ -15,9 +15,13 @@ import {
   AdminExerciseManagementPage,
   ProfilePage,
   SettingsPage,
+  PremiumCheckoutPage,
+  PremiumLandingPage,
 } from "./pages";
 import { AuthProvider } from "./context/auth-context";
 import { ThemeProvider } from "./context/ThemeContext";
+import { PremiumProvider } from "./context/PremiumContext";
+import AIChatBot from "./components/chat/AIChatBot";
 import ProtectedRoute from "./components/routes/ProtectedRoute";
 import AdminRoute from "./components/routes/AdminRoute";
 import PublicRoute from "./components/routes/PublicRoute";
@@ -48,6 +52,8 @@ function App() {
                 <Route path="/history" element={<HistoryPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/premium" element={<PremiumLandingPage />} />
+                <Route path="/premium/checkout" element={<PremiumCheckoutPage />} />
               </Route>
             </Route>
 
@@ -66,6 +72,7 @@ function App() {
             <Route path="*" element={<div className="p-10">404 - Not Found</div>} />
           </Routes>
           <ToastContainer position="top-right" autoClose={3000} />
+          <AIChatBot />
         </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>

@@ -14,6 +14,7 @@ console.log("------- CHECK CONNECTION CONFIG -------");
 console.log("1. NODE_ENV:", process.env.NODE_ENV);
 console.log("2. DB_HOST:", process.env.DB_HOST);
 console.log("3. DB_PORT:", process.env.DB_PORT);
+console.log("4. DB_SSL:", process.env.DB_SSL);
 console.log("---------------------------------------");
 
 const poolConfig = {
@@ -27,12 +28,12 @@ const poolConfig = {
     queueLimit: 0
 };
 
-// Add SSL config for production
-if (process.env.NODE_ENV === 'production') {
+// Add SSL config for Railway or production
+if (process.env.DB_SSL === 'true' || process.env.NODE_ENV === 'production') {
     poolConfig.ssl = {
         rejectUnauthorized: false
     };
-    console.log("✅ SSL enabled for production database");
+    console.log("✅ SSL enabled for database connection");
 }
 
 const pool = mysql.createPool(poolConfig);
