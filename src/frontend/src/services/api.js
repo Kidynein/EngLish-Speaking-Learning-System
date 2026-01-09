@@ -30,6 +30,11 @@ api.interceptors.response.use(
     (error) => {
         const { response, message } = error;
 
+        // Skip toast for canceled requests
+        if (error.name === 'CanceledError' || error.name === 'AbortError') {
+            return Promise.reject(error);
+        }
+
         if (!response) {
             // Network Error or Server Down
             toast.error('Network error or server unreachable. Please check your connection.');
