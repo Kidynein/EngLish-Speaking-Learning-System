@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
 const testimonials = [
     {
@@ -25,18 +26,32 @@ const TestimonialSection = () => {
     return (
         <section className="py-20 bg-slate-800/50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-16">
+                <motion.div
+                    className="text-center mb-16"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6 }}
+                >
                     <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
                         Loved by English Learners Worldwide
                     </h2>
                     <p className="mt-4 text-xl text-slate-400">
                         Join thousands of users who have transformed their English speaking skills.
                     </p>
-                </div>
+                </motion.div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {testimonials.map((testimonial, index) => (
-                        <div key={index} className="bg-slate-700/50 border border-slate-600 p-8 rounded-2xl shadow-md hover:shadow-xl hover:border-brand-tertiary/50 transition-all duration-300">
+                        <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: index * 0.2, duration: 0.5 }}
+                            whileHover={{ y: -10, transition: { duration: 0.3 } }}
+                            className="bg-slate-700/50 border border-slate-600 p-8 rounded-2xl shadow-md hover:shadow-xl hover:border-brand-tertiary/50 transition-colors duration-300"
+                        >
                             <div className="flex items-center mb-6">
                                 <img
                                     className="h-12 w-12 rounded-full object-cover mr-4 ring-2 ring-brand-tertiary/30"
@@ -56,7 +71,7 @@ const TestimonialSection = () => {
                                     </svg>
                                 ))}
                             </div>
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
             </div>

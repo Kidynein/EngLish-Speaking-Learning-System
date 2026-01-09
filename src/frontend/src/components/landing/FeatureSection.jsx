@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
 const features = [
     {
@@ -44,10 +45,35 @@ const features = [
 ];
 
 const FeatureSection = () => {
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.2
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 30 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: { duration: 0.6, ease: "easeOut" }
+        }
+    };
+
     return (
         <section className="py-20 bg-slate-800">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-16">
+                <motion.div
+                    className="text-center mb-16"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6 }}
+                >
                     <h2 className="text-base text-brand-primary font-semibold tracking-wide uppercase">Why Choose Us</h2>
                     <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-white sm:text-4xl">
                         The World's Best English Pronunciation Coach
@@ -55,11 +81,25 @@ const FeatureSection = () => {
                     <p className="mt-4 max-w-2xl text-xl text-slate-400 mx-auto">
                         Powered by advanced Artificial Intelligence to help you speak confidently.
                     </p>
-                </div>
+                </motion.div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <motion.div
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+                    variants={containerVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, margin: "-100px" }}
+                >
                     {features.map((feature, index) => (
-                        <div key={index} className="relative p-8 bg-slate-700/50 border border-slate-600 rounded-2xl shadow-sm hover:shadow-lg hover:border-brand-primary/50 transition-all duration-300 flex flex-col items-center text-center">
+                        <motion.div
+                            key={index}
+                            variants={itemVariants}
+                            whileHover={{
+                                scale: 1.05,
+                                transition: { duration: 0.2 }
+                            }}
+                            className="relative p-8 bg-slate-700/50 border border-slate-600 rounded-2xl shadow-sm hover:shadow-lg hover:border-brand-primary/50 transition-colors duration-300 flex flex-col items-center text-center"
+                        >
                             <div className={`flex items-center justify-center w-20 h-20 rounded-full ${feature.colorClass} mb-6`}>
                                 {typeof feature.icon === 'string' ? (
                                     <img src={feature.icon} alt={feature.title} className="w-12 h-12 object-contain" />
@@ -71,9 +111,9 @@ const FeatureSection = () => {
                             <p className="text-slate-400 leading-relaxed">
                                 {feature.description}
                             </p>
-                        </div>
+                        </motion.div>
                     ))}
-                </div>
+                </motion.div>
             </div>
         </section>
     );

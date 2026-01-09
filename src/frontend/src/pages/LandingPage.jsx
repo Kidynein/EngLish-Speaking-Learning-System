@@ -6,6 +6,8 @@ import TestimonialSection from '../components/landing/TestimonialSection';
 import CTASection from '../components/landing/CTASection';
 import Footer from '../components/landing/Footer';
 
+import PricingSection from '../components/landing/PricingSection';
+
 const LandingPage = () => {
     const { setOverrideTheme } = useTheme();
 
@@ -28,6 +30,7 @@ const LandingPage = () => {
                 <HeroSection />
                 <FeatureSection />
                 <TestimonialSection />
+                <PricingSection />
                 <CTASection />
             </main>
             <Footer />

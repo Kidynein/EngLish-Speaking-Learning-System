@@ -11,6 +11,7 @@ import exerciseService from "../services/exercise.service";
 import userService from "../services/user.service";
 import practiceSessionService from "../services/practiceSession.service";
 import { toast } from "react-toastify";
+import PremiumPromoBanner from "../components/dashboard/PremiumPromoBanner.jsx";
 
 function DashboardPage() {
   const navigate = useNavigate();
@@ -250,6 +251,9 @@ function DashboardPage() {
               </div>
             </section>
 
+            {/* Premium Promo Banner */}
+            <PremiumPromoBanner />
+
             {/* Stats */}
             <section className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 mb-12">
               <StatCard
@@ -298,6 +302,7 @@ function DashboardPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: (index % LimitTopic) * 0.05 }}
                       layout
+                      className="h-full"
                     >
                       <TopicCard
                         title={topic.name}

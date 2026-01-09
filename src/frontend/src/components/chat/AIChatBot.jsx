@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import ReactMarkdown from 'react-markdown';
@@ -7,6 +8,7 @@ import { usePremium } from '../../context/PremiumContext';
 
 const AIChatBot = () => {
     const { isPro, openPremiumModal } = usePremium();
+    const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([]);
     const [inputMessage, setInputMessage] = useState('');
@@ -57,12 +59,12 @@ const AIChatBot = () => {
 
     const handleSendMessage = async (e) => {
         e?.preventDefault();
-        
+
         if (!inputMessage.trim() || isLoading) return;
 
         const userMessage = inputMessage.trim();
         setInputMessage('');
-        
+
         // Add user message to UI immediately
         setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
         setIsLoading(true);
@@ -103,7 +105,7 @@ const AIChatBot = () => {
 
     const handleClearHistory = async () => {
         if (!confirm('Bạn có chắc muốn xóa lịch sử hội thoại?')) return;
-        
+
         try {
             await chatService.clearHistory();
             setMessages([]);
@@ -196,17 +198,28 @@ const AIChatBot = () => {
                         <h4 className="text-lg font-bold text-gray-800 mb-2">
                             Tính năng dành cho Pro
                         </h4>
+// ... imports
+                        import {useNavigate} from 'react-router-dom';
+
+                        // ... inside component
+                        const navigate = useNavigate();
+                        // ...
+
+                        // ... inside render
                         <p className="text-gray-600 text-sm mb-6">
                             Nâng cấp lên gói Pro để sử dụng gia sư AI cá nhân, trò chuyện không giới hạn và nhiều tính năng khác!
                         </p>
                         <button
                             onClick={() => {
                                 setIsOpen(false);
-                                openPremiumModal();
+                                navigate('/premium');
                             }}
-                            className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:opacity-90 transition-opacity"
+                            className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:opacity-90 transition-opacity flex items-center gap-2 group"
                         >
-                            Nâng cấp Pro ngay
+                            <span>Nâng cấp Pro ngay</span>
+                            <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
                         </button>
                     </div>
                 ) : (
@@ -222,7 +235,7 @@ const AIChatBot = () => {
                                     <p className="text-sm text-gray-500 mb-4">
                                         Tôi là gia sư AI của bạn. Hãy hỏi tôi bất cứ điều gì về tiếng Anh!
                                     </p>
-                                    
+
                                     {/* Quick actions */}
                                     <div className="grid grid-cols-2 gap-2 mt-4">
                                         {quickActions.map((qa) => (
@@ -246,11 +259,10 @@ const AIChatBot = () => {
                                         className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                                     >
                                         <div
-                                            className={`max-w-[85%] p-3 rounded-2xl ${
-                                                msg.role === 'user'
-                                                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-br-md'
-                                                    : 'bg-white border border-gray-200 text-gray-800 rounded-bl-md shadow-sm'
-                                            }`}
+                                            className={`max-w-[85%] p-3 rounded-2xl ${msg.role === 'user'
+                                                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-br-md'
+                                                : 'bg-white border border-gray-200 text-gray-800 rounded-bl-md shadow-sm'
+                                                }`}
                                         >
                                             {msg.role === 'assistant' ? (
                                                 <div className="prose prose-sm max-w-none">
@@ -274,7 +286,7 @@ const AIChatBot = () => {
                                     </motion.div>
                                 ))
                             )}
-                            
+
                             {/* Loading indicator */}
                             {isLoading && (
                                 <motion.div
@@ -294,7 +306,7 @@ const AIChatBot = () => {
                                     </div>
                                 </motion.div>
                             )}
-                            
+
                             <div ref={messagesEndRef} />
                         </div>
 
