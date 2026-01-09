@@ -5,6 +5,8 @@ node_modules/
 .env
 .env.local
 .env.*
+src/backend/config/.env
+src/backend/config/test.env
 
 # Build outputs
 dist/
