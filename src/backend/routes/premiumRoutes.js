@@ -10,6 +10,7 @@ router.get('/plans', premiumController.getPlans);
 router.get('/subscription', authenticate, premiumController.getSubscription);
 router.post('/upgrade', authenticate, premiumController.upgradePlan);
 router.post('/cancel', authenticate, premiumController.cancelSubscription);
+router.post('/cancel-scheduled-change', authenticate, premiumController.cancelScheduledChange);
 router.post('/promo', authenticate, premiumController.applyPromoCode);
 router.post('/checkout', authenticate, premiumController.createCheckoutSession);
 router.post('/verify-payment', authenticate, premiumController.verifyPayment);

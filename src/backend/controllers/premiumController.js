@@ -27,6 +27,10 @@ const premiumController = {
                 startDate: subscription.currentPeriodStart,
                 endDate: subscription.currentPeriodEnd,
                 cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+                // Scheduled plan change info
+                scheduledPlan: subscription.scheduledPlan,
+                scheduledBillingCycle: subscription.scheduledBillingCycle,
+                scheduledChangeDate: subscription.scheduledChangeDate,
                 createdAt: subscription.createdAt
             };
 
@@ -50,24 +54,95 @@ const premiumController = {
             const userId = req.user.userId;
             const { planId, billingCycle = 'monthly' } = req.body;
 
-            if (!planId || !['premium', 'pro'].includes(planId)) {
+            if (!planId || !['free', 'premium', 'pro'].includes(planId)) {
                 return errorResponse(res, 400, 'Invalid plan selected');
             }
 
             const existingSubscription = await Subscription.findByUserId(userId);
+            const planRank = { free: 0, premium: 1, pro: 2 };
 
-            if (existingSubscription && existingSubscription.status === 'active') {
-                await Subscription.update(existingSubscription.id, { plan: planId, billingCycle });
-            } else {
+            // No existing subscription - create new one
+            if (!existingSubscription || existingSubscription.status !== 'active') {
+                if (planId === 'free') {
+                    return successResponse(res, 200, 'Bạn đang sử dụng gói miễn phí.', { plan: 'free', status: 'active' });
+                }
                 await Subscription.create({ userId, plan: planId, billingCycle });
+                const newSubscription = await Subscription.findByUserId(userId);
+                return successResponse(res, 200, `Đã đăng ký thành công gói ${PREMIUM_PLANS[planId].name}!`, newSubscription);
             }
+
+            const currentPlanRank = planRank[existingSubscription.plan];
+            const newPlanRank = planRank[planId];
+
+            // Same plan - no change needed
+            if (existingSubscription.plan === planId) {
+                return errorResponse(res, 400, `Bạn đang sử dụng gói ${PREMIUM_PLANS[planId].name} rồi.`);
+            }
+
+            // UPGRADE: Chuyển lên gói cao hơn - áp dụng ngay
+            if (newPlanRank > currentPlanRank) {
+                await Subscription.update(existingSubscription.id, { 
+                    plan: planId, 
+                    billingCycle,
+                    // Clear any scheduled changes
+                    scheduledPlan: null,
+                    scheduledBillingCycle: null,
+                    scheduledChangeDate: null,
+                    cancelAtPeriodEnd: false,
+                    status: 'active'
+                });
+                const updatedSubscription = await Subscription.findByUserId(userId);
+                return successResponse(res, 200, `Đã nâng cấp thành công lên gói ${PREMIUM_PLANS[planId].name}!`, updatedSubscription);
+            }
+
+            // DOWNGRADE: Chuyển xuống gói thấp hơn - lên lịch cho cuối kỳ
+            const scheduledChangeDate = existingSubscription.currentPeriodEnd;
+            await Subscription.schedulePlanChange(
+                existingSubscription.id, 
+                planId, 
+                billingCycle, 
+                scheduledChangeDate
+            );
 
             const updatedSubscription = await Subscription.findByUserId(userId);
             
-            return successResponse(res, 200, `Successfully upgraded to ${PREMIUM_PLANS[planId].name} plan!`, updatedSubscription);
+            const formattedDate = new Date(scheduledChangeDate).toLocaleDateString('vi-VN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            return successResponse(res, 200, 
+                `Đã lên lịch chuyển sang gói ${PREMIUM_PLANS[planId].name}. Bạn vẫn được sử dụng gói ${PREMIUM_PLANS[existingSubscription.plan].name} đến hết ngày ${formattedDate}. Sau đó hệ thống sẽ tự động chuyển sang gói mới.`,
+                updatedSubscription
+            );
         } catch (error) {
             console.error('Upgrade plan error:', error);
             return errorResponse(res, 500, 'Failed to upgrade plan', error.message);
+        }
+    },
+
+    // Cancel scheduled plan change
+    cancelScheduledChange: async (req, res) => {
+        try {
+            const userId = req.user.userId;
+            const subscription = await Subscription.findByUserId(userId);
+
+            if (!subscription) {
+                return errorResponse(res, 400, 'Không tìm thấy gói đăng ký.');
+            }
+
+            if (!subscription.scheduledPlan) {
+                return errorResponse(res, 400, 'Không có lịch chuyển đổi gói nào.');
+            }
+
+            await Subscription.cancelScheduledChange(subscription.id);
+            const updatedSubscription = await Subscription.findByUserId(userId);
+
+            return successResponse(res, 200, 'Đã hủy lịch chuyển đổi gói thành công.', updatedSubscription);
+        } catch (error) {
+            console.error('Cancel scheduled change error:', error);
+            return errorResponse(res, 500, 'Không thể hủy lịch chuyển đổi', error.message);
         }
     },
 

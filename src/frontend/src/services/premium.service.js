@@ -36,6 +36,18 @@ const premiumService = {
         }
     },
 
+    cancelScheduledChange: async () => {
+        try {
+            const response = await api.post("/premium/cancel-scheduled-change");
+            return response.data;
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || 'Không thể hủy lịch chuyển đổi';
+            const customError = new Error(errorMessage);
+            customError.response = error.response;
+            throw customError;
+        }
+    },
+
     createCheckoutSession: async (planId, billingCycle = 'monthly') => {
         const response = await api.post("/premium/checkout", { planId, billingCycle });
         return response.data.data;

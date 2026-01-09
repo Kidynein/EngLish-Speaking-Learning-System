@@ -14,8 +14,11 @@ const AIChatBot = () => {
     const [inputMessage, setInputMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [hasAccess, setHasAccess] = useState(false);
+    const [selectedMode, setSelectedMode] = useState('general'); // general, vocabulary, grammar, translate, writing
+    const [showModeMenu, setShowModeMenu] = useState(false);
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
+    const modeMenuRef = useRef(null);
 
     // Check access on mount
     useEffect(() => {
@@ -36,6 +39,18 @@ const AIChatBot = () => {
             setTimeout(() => inputRef.current.focus(), 100);
         }
     }, [isOpen, hasAccess]);
+
+    // Close mode menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (modeMenuRef.current && !modeMenuRef.current.contains(event.target)) {
+                setShowModeMenu(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -65,12 +80,30 @@ const AIChatBot = () => {
         const userMessage = inputMessage.trim();
         setInputMessage('');
 
+        // Determine if using special mode
+        let messageToSend = userMessage;
+        let action = null;
+
+        if (selectedMode !== 'general') {
+            const modeInfo = chatModes.find(m => m.id === selectedMode);
+            action = modeInfo?.action;
+        }
+
         // Add user message to UI immediately
-        setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+        const displayMessage = selectedMode !== 'general' 
+            ? `[${chatModes.find(m => m.id === selectedMode)?.label}] ${userMessage}`
+            : userMessage;
+        
+        setMessages(prev => [...prev, { role: 'user', content: displayMessage }]);
         setIsLoading(true);
 
         try {
-            const response = await chatService.sendMessage(userMessage);
+            let response;
+            if (action) {
+                response = await chatService.quickAction(action, userMessage);
+            } else {
+                response = await chatService.sendMessage(userMessage);
+            }
             setMessages(prev => [...prev, { role: 'assistant', content: response.response }]);
         } catch (error) {
             console.error('Send message error:', error);
@@ -121,6 +154,18 @@ const AIChatBot = () => {
         { action: 'translate', label: '🌐 Dịch', icon: '🌐' },
         { action: 'correct_writing', label: '✏️ Sửa văn', icon: '✏️' },
     ];
+
+    const chatModes = [
+        { id: 'general', label: '💬 Trò chuyện', icon: '💬', action: null, description: 'Chat tự nhiên với AI' },
+        { id: 'vocabulary', label: '📚 Từ vựng', icon: '📚', action: 'vocabulary', description: 'Giải nghĩa từ, cụm từ' },
+        { id: 'grammar', label: '📝 Ngữ pháp', icon: '📝', action: 'explain_grammar', description: 'Giải thích ngữ pháp' },
+        { id: 'translate', label: '🌐 Dịch', icon: '🌐', action: 'translate', description: 'Dịch thuật chính xác' },
+        { id: 'writing', label: '✏️ Sửa văn', icon: '✏️', action: 'correct_writing', description: 'Sửa lỗi, cải thiện văn' },
+    ];
+
+    const getCurrentMode = () => {
+        return chatModes.find(m => m.id === selectedMode) || chatModes[0];
+    };
 
     // Floating button
     if (!isOpen) {
@@ -241,7 +286,13 @@ const AIChatBot = () => {
                                         {quickActions.map((qa) => (
                                             <button
                                                 key={qa.action}
-                                                onClick={() => handleQuickAction(qa.action, qa.label)}
+                                                onClick={() => {
+                                                    const mode = chatModes.find(m => m.action === qa.action);
+                                                    if (mode) {
+                                                        setSelectedMode(mode.id);
+                                                        inputRef.current?.focus();
+                                                    }
+                                                }}
                                                 className="p-3 bg-white rounded-xl border border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-colors text-sm text-gray-700"
                                             >
                                                 <span className="text-lg mr-1">{qa.icon}</span>
@@ -312,13 +363,72 @@ const AIChatBot = () => {
 
                         {/* Input */}
                         <form onSubmit={handleSendMessage} className="p-4 bg-white border-t border-gray-200">
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 items-end">
+                                {/* Mode Selector */}
+                                <div className="relative" ref={modeMenuRef}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowModeMenu(!showModeMenu)}
+                                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors border border-gray-300 text-gray-700"
+                                        title="Chọn chế độ"
+                                    >
+                                        <span className="text-xl">{getCurrentMode().icon}</span>
+                                    </button>
+
+                                    {/* Mode Menu Dropdown */}
+                                    {showModeMenu && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: 10 }}
+                                            className="absolute bottom-full left-0 mb-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-10"
+                                        >
+                                            <div className="p-2 bg-gray-50 border-b border-gray-200">
+                                                <p className="text-xs font-semibold text-gray-600 px-2">Chọn chế độ AI</p>
+                                            </div>
+                                            <div className="max-h-64 overflow-y-auto">
+                                                {chatModes.map((mode) => (
+                                                    <button
+                                                        key={mode.id}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setSelectedMode(mode.id);
+                                                            setShowModeMenu(false);
+                                                            inputRef.current?.focus();
+                                                        }}
+                                                        className={`w-full px-3 py-2.5 flex items-start gap-3 hover:bg-purple-50 transition-colors text-left ${
+                                                            selectedMode === mode.id ? 'bg-purple-100' : ''
+                                                        }`}
+                                                    >
+                                                        <span className="text-xl flex-shrink-0">{mode.icon}</span>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className={`text-sm font-medium ${
+                                                                selectedMode === mode.id ? 'text-purple-700' : 'text-gray-800'
+                                                            }`}>
+                                                                {mode.label.replace(mode.icon + ' ', '')}
+                                                            </p>
+                                                            <p className="text-xs text-gray-500 mt-0.5">
+                                                                {mode.description}
+                                                            </p>
+                                                        </div>
+                                                        {selectedMode === mode.id && (
+                                                            <svg className="w-4 h-4 text-purple-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                            </svg>
+                                                        )}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </div>
+
                                 <input
                                     ref={inputRef}
                                     type="text"
                                     value={inputMessage}
                                     onChange={(e) => setInputMessage(e.target.value)}
-                                    placeholder="Nhập tin nhắn..."
+                                    placeholder={`${getCurrentMode().label.replace(getCurrentMode().icon + ' ', '')}: Nhập nội dung...`}
                                     disabled={isLoading}
                                     className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:border-purple-500 disabled:bg-gray-100 text-gray-800 placeholder-gray-400"
                                 />

@@ -221,6 +221,34 @@ export const PremiumProvider = ({ children }) => {
         }
     };
 
+    const cancelScheduledChange = async () => {
+        try {
+            await premiumService.cancelScheduledChange();
+            await fetchSubscription();
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    /**
+     * Check if there is a scheduled plan change
+     */
+    const hasScheduledChange = () => {
+        return subscription?.scheduledPlan !== null && subscription?.scheduledPlan !== undefined;
+    };
+
+    /**
+     * Get scheduled plan info
+     */
+    const getScheduledPlanInfo = () => {
+        if (!hasScheduledChange()) return null;
+        return {
+            plan: subscription.scheduledPlan,
+            billingCycle: subscription.scheduledBillingCycle,
+            changeDate: subscription.scheduledChangeDate
+        };
+    };
+
     const value = {
         subscription,
         loading,
@@ -231,6 +259,9 @@ export const PremiumProvider = ({ children }) => {
         getFeatureLimit,
         upgradePlan,
         cancelSubscription,
+        cancelScheduledChange,
+        hasScheduledChange: hasScheduledChange(),
+        scheduledPlanInfo: getScheduledPlanInfo(),
         refreshSubscription: fetchSubscription,
         plans: PREMIUM_PLANS,
         // Modal state

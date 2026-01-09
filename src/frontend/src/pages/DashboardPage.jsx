@@ -12,9 +12,11 @@ import userService from "../services/user.service";
 import practiceSessionService from "../services/practiceSession.service";
 import { toast } from "react-toastify";
 import PremiumPromoBanner from "../components/dashboard/PremiumPromoBanner.jsx";
+import { usePremium } from "../context/PremiumContext.jsx";
 
 function DashboardPage() {
   const navigate = useNavigate();
+  const { isPremium, isPro, currentPlan } = usePremium();
   const [topics, setTopics] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -30,10 +32,23 @@ function DashboardPage() {
 
   const LimitTopic = 9;
 
+  // Get plan badge info
+  const getPlanBadge = () => {
+    if (isPro) {
+      return { icon: '👑', text: 'Pro', color: 'from-purple-500 to-pink-500', bgColor: 'bg-purple-500/20', borderColor: 'border-purple-500/50' };
+    }
+    if (isPremium) {
+      return { icon: '⭐', text: 'Premium', color: 'from-emerald-500 to-green-500', bgColor: 'bg-emerald-500/20', borderColor: 'border-emerald-500/50' };
+    }
+    return { icon: '🆓', text: 'Free', color: 'from-slate-500 to-slate-600', bgColor: 'bg-slate-500/20', borderColor: 'border-slate-500/50' };
+  };
+
+  const planBadge = getPlanBadge();
+
   // Initial Load & Stats
   useEffect(() => {
-    // Load user from local storage
-    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+    // Load user from session storage
+    const storedUser = JSON.parse(sessionStorage.getItem('user') || '{}');
     setUser(storedUser);
 
     // Fetch User Stats
@@ -236,9 +251,16 @@ function DashboardPage() {
             <section className="mb-12 space-y-4">
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div className="space-y-2">
-                  <h1 className="text-4xl font-bold text-white flex items-center gap-2">
-                    Welcome back, {user.fullName || 'Learner'}! 👋
-                  </h1>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <h1 className="text-4xl font-bold text-white flex items-center gap-2">
+                      Welcome back, {user.fullName || 'Learner'}! 👋
+                    </h1>
+                    {/* Plan Badge */}
+                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r ${planBadge.color} text-white shadow-lg`}>
+                      <span>{planBadge.icon}</span>
+                      {planBadge.text}
+                    </span>
+                  </div>
                   <p className="text-base text-slate-400">
                     Keep practicing and improve your speaking skills
                   </p>

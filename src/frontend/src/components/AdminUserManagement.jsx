@@ -33,7 +33,7 @@ const AdminUserManagement = () => {
     };
 
     useEffect(() => {
-        const token = localStorage.getItem('token') || localStorage.getItem('accessToken') || localStorage.getItem('authToken');
+        const token = sessionStorage.getItem('token') || sessionStorage.getItem('accessToken') || sessionStorage.getItem('authToken');
         if (!token) {
             toast.error('Session expired, please login again');
             navigate('/login');
