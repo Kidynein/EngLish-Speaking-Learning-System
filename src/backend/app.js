@@ -12,6 +12,7 @@ const exerciseAttemptRoutes = require('./routes/exerciseAttemptRoutes');
 const userStatsRoutes = require('./routes/userStatsRoutes');
 const userRoutes = require('./routes/userRoutes');
 const historyRoutes = require('./routes/historyRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use('/api/exercise-attempts', exerciseAttemptRoutes);
 app.use('/api/user-stats', userStatsRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api', historyRoutes);
+app.use('/api/chat', chatRoutes);
 app.use('/api/scoring', require('./routes/scoringRoutes'));
 app.use('/api/progress', require('./routes/progressRoutes'));
 app.use('/api/assessment', require('./routes/assessmentRoutes'));
