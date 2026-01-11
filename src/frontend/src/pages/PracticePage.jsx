@@ -28,6 +28,7 @@ function PracticePage() {
     const [feedbackData, setFeedbackData] = useState({ score: 0, feedback: "", wordFeedback: [] });
     const [accumulatedScore, setAccumulatedScore] = useState(0);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [sessionStartTime] = useState(() => Date.now()); // Track session start time
 
     // ========== PREVENT DOUBLE SUBMISSIONS ==========
     // Ref to track if AI request is in flight (persists across renders)
@@ -92,7 +93,7 @@ function PracticePage() {
             toast.info("Please wait, processing your recording...");
             return;
         }
-        
+
         if (!isRecording) {
             // Start recording
             console.log('[Recording] 🎤 Starting new recording...');
@@ -149,25 +150,25 @@ function PracticePage() {
             console.log('[AI] No audio blob, skipping...');
             return;
         }
-        
+
         if (isAnalyzingRef.current) {
             console.log('[AI] ⚠️ Request already in flight, preventing double submission');
             return;
         }
-        
+
         // Lock the request
         isAnalyzingRef.current = true;
         setIsProcessing(true);
-        
+
         console.log('[AI] 🎯 Starting AI assessment (locked)...');
-        
+
         try {
             console.log(`[AI] Sending audio to Gemini: ${audioBlob.size} bytes, type: ${audioBlob.type}`);
             const response = await analyzePronunciation(audioBlob, targetText);
-            
+
             if (response.success && response.data?.assessment) {
                 const assessment = response.data.assessment;
-                
+
                 // Map Gemini response to our format
                 const scoreData = {
                     overallScore: assessment.overall_score,
@@ -211,7 +212,7 @@ function PracticePage() {
             }
         } catch (error) {
             console.error("[AI] ❌ Assessment failed:", error.message);
-            
+
             // Show specific error messages based on error type
             if (error.message?.includes('quota') || error.message?.includes('429')) {
                 toast.error("AI service quota exceeded. Please try again later.");
@@ -220,7 +221,7 @@ function PracticePage() {
             } else {
                 toast.warning("AI assessment unavailable, using local scoring.");
             }
-            
+
             processLocalScoring();
         } finally {
             // ========== UNLOCK REQUEST ==========
@@ -317,9 +318,13 @@ function PracticePage() {
             // Calculate final score
             const finalScore = Math.round(accumulatedScore / exercises.length);
 
+            // Calculate session duration in seconds
+            const durationSeconds = Math.round((Date.now() - sessionStartTime) / 1000);
+
             if (sessionId) {
-                await practiceSessionService.endSession(sessionId, finalScore);
-                toast.success(`Practice completed! Score: ${finalScore}`);
+                const result = await practiceSessionService.endSession(sessionId, finalScore, durationSeconds);
+                const xpEarned = result?.data?.xpEarned || 10;
+                toast.success(`Practice completed! Score: ${finalScore} | +${xpEarned} XP`);
             } else {
                 toast.success("Practice completed! (Session not tracked)");
             }

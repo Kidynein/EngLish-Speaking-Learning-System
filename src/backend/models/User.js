@@ -10,6 +10,7 @@ class User {
             email: row.email,
             role: row.role,
             avatarUrl: row.avatar_url,
+            xp: row.xp || 0,
             isActive: true, // TODO: Add is_active column to database
             passwordHash: row.password_hash,
             createdAt: row.created_at,
@@ -157,6 +158,34 @@ class User {
         const [result] = await pool.query(
             'UPDATE Users SET reset_token = NULL, reset_token_expires = NULL WHERE user_id = ?',
             [userId]
+        );
+        return result.affectedRows > 0;
+    }
+
+    // XP Methods
+    static async getXP(userId) {
+        const [rows] = await pool.query(
+            'SELECT xp FROM Users WHERE user_id = ?',
+            [userId]
+        );
+        return rows[0]?.xp || 0;
+    }
+
+    static async addXP(userId, amount) {
+        const [result] = await pool.query(
+            'UPDATE Users SET xp = COALESCE(xp, 0) + ?, updated_at = NOW() WHERE user_id = ?',
+            [amount, userId]
+        );
+
+        // Get new XP value
+        const newXP = await this.getXP(userId);
+        return { success: result.affectedRows > 0, newXP };
+    }
+
+    static async setXP(userId, xp) {
+        const [result] = await pool.query(
+            'UPDATE Users SET xp = ?, updated_at = NOW() WHERE user_id = ?',
+            [xp, userId]
         );
         return result.affectedRows > 0;
     }

@@ -35,31 +35,48 @@ api.interceptors.response.use(
             return Promise.reject(error);
         }
 
+        // Safe toast wrapper to prevent react-toastify bugs from crashing the app
+        const safeToast = (msg) => {
+            try {
+                toast.error(msg);
+            } catch (toastError) {
+                console.error('Toast error:', toastError);
+                console.error('Original message:', msg);
+            }
+        };
+
         if (!response) {
             // Network Error or Server Down
-            toast.error('Network error or server unreachable. Please check your connection.');
+            safeToast('Network error or server unreachable. Please check your connection.');
             return Promise.reject(error);
+        }
+
+        // Debug logging for 404 errors
+        if (response.status === 404) {
+            console.warn('[API 404] URL:', error.config?.url, 'Full URL:', error.config?.baseURL + error.config?.url);
         }
 
         // Handle specific status codes
         switch (response.status) {
             case 401:
                 // Unauthorized - Optional: Redirect to login or clear token
-                toast.error('Session expired. Please please login again.');
-                // window.location.href = '/login'; 
+                safeToast('Session expired. Please login again.');
                 break;
             case 403:
-                toast.error('You do not have permission to perform this action.');
+                safeToast('You do not have permission to perform this action.');
                 break;
             case 404:
-                toast.error('Resource not found.');
+                // Don't show toast for subscription 404 (it's expected for free users)
+                if (!error.config?.url?.includes('/subscription')) {
+                    safeToast('Resource not found.');
+                }
                 break;
             case 500:
-                toast.error('Internal server error. Please try again later.');
+                safeToast('Internal server error. Please try again later.');
                 break;
             default:
                 // Generic API message or default text
-                toast.error(response.data?.message || message || 'Something went wrong.');
+                safeToast(response.data?.message || message || 'Something went wrong.');
         }
 
         return Promise.reject(error);

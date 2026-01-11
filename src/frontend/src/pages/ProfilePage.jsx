@@ -454,13 +454,12 @@ const ProfilePage = () => {
                                 <span className="text-2xl">📦</span>
                                 Your Plan
                             </h3>
-                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${
-                                isPro 
-                                    ? 'bg-purple-500/30 text-purple-300' 
-                                    : isPremium 
-                                        ? 'bg-emerald-500/30 text-emerald-300'
-                                        : 'bg-slate-600/50 text-slate-300'
-                            }`}>
+                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${isPro
+                                ? 'bg-purple-500/30 text-purple-300'
+                                : isPremium
+                                    ? 'bg-emerald-500/30 text-emerald-300'
+                                    : 'bg-slate-600/50 text-slate-300'
+                                }`}>
                                 {isPro ? '👑 Pro Member' : isPremium ? '⭐ Premium Member' : '🆓 Free User'}
                             </span>
                         </div>
@@ -468,11 +467,10 @@ const ProfilePage = () => {
                         {/* All Plans Display */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                             {/* Free Plan */}
-                            <div className={`relative p-4 rounded-xl border-2 transition-all ${
-                                !isPremium && !isPro
-                                    ? 'border-slate-400 bg-slate-700/80 ring-2 ring-slate-400/50'
-                                    : 'border-slate-700 bg-slate-800/50 opacity-60'
-                            }`}>
+                            <div className={`relative p-4 rounded-xl border-2 transition-all ${!isPremium && !isPro
+                                ? 'border-slate-400 bg-slate-700/80 ring-2 ring-slate-400/50'
+                                : 'border-slate-700 bg-slate-800/50 opacity-60'
+                                }`}>
                                 {!isPremium && !isPro && (
                                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                                         <span className="px-3 py-1 bg-slate-500 text-white text-xs font-bold rounded-full">
@@ -499,11 +497,10 @@ const ProfilePage = () => {
                             </div>
 
                             {/* Premium Plan */}
-                            <div className={`relative p-4 rounded-xl border-2 transition-all ${
-                                isPremium && !isPro
-                                    ? 'border-emerald-500 bg-gradient-to-b from-emerald-900/50 to-green-900/50 ring-2 ring-emerald-500/50'
-                                    : 'border-slate-700 bg-slate-800/50'
-                            } ${isPro ? 'opacity-60' : ''}`}>
+                            <div className={`relative p-4 rounded-xl border-2 transition-all ${isPremium && !isPro
+                                ? 'border-emerald-500 bg-gradient-to-b from-emerald-900/50 to-green-900/50 ring-2 ring-emerald-500/50'
+                                : 'border-slate-700 bg-slate-800/50'
+                                } ${isPro ? 'opacity-60' : ''}`}>
                                 {isPremium && !isPro && (
                                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                                         <span className="px-3 py-1 bg-emerald-500 text-white text-xs font-bold rounded-full">
@@ -530,11 +527,10 @@ const ProfilePage = () => {
                             </div>
 
                             {/* Pro Plan */}
-                            <div className={`relative p-4 rounded-xl border-2 transition-all ${
-                                isPro
-                                    ? 'border-purple-500 bg-gradient-to-b from-purple-900/50 to-pink-900/50 ring-2 ring-purple-500/50'
-                                    : 'border-slate-700 bg-slate-800/50'
-                            }`}>
+                            <div className={`relative p-4 rounded-xl border-2 transition-all ${isPro
+                                ? 'border-purple-500 bg-gradient-to-b from-purple-900/50 to-pink-900/50 ring-2 ring-purple-500/50'
+                                : 'border-slate-700 bg-slate-800/50'
+                                }`}>
                                 {isPro && (
                                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                                         <span className="px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full">
@@ -566,9 +562,8 @@ const ProfilePage = () => {
                             <div className={`p-4 rounded-lg mb-6 ${isPro ? 'bg-purple-500/10' : 'bg-emerald-500/10'}`}>
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                        <span className={`w-2 h-2 rounded-full ${
-                                            subscription?.status === 'active' ? 'bg-green-500 animate-pulse' : 'bg-slate-500'
-                                        }`}></span>
+                                        <span className={`w-2 h-2 rounded-full ${subscription?.status === 'active' ? 'bg-green-500 animate-pulse' : 'bg-slate-500'
+                                            }`}></span>
                                         <span className="text-sm text-slate-300">
                                             Status: <span className="font-semibold text-white capitalize">{subscription?.status || 'Active'}</span>
                                             {subscription?.cancelAtPeriodEnd && (
@@ -583,15 +578,19 @@ const ProfilePage = () => {
                             </div>
                         )}
 
-                        {/* Cancelled Notice */}
-                        {(isPremium || isPro) && subscription?.cancelAtPeriodEnd && (
-                            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-6">
+                        {/* Cancelled Notice - Only show if NO scheduled change */}
+                        {(isPremium || isPro) && subscription?.cancelAtPeriodEnd && !hasScheduledChange && (
+                            <div className="bg-amber-500/20 border-2 border-amber-400/50 rounded-xl p-4 mb-6 shadow-lg">
                                 <div className="flex items-start gap-3">
-                                    <span className="text-yellow-400 text-lg">⚠️</span>
+                                    <div className="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                    </div>
                                     <div>
-                                        <p className="text-yellow-300 font-semibold text-sm">Gói đăng ký đã được hủy</p>
-                                        <p className="text-yellow-200/70 text-xs">
-                                            Bạn vẫn có thể sử dụng tất cả tính năng đến ngày {formatDate(subscription?.endDate)}
+                                        <p className="text-white font-bold text-base">Gói đăng ký đã được hủy</p>
+                                        <p className="text-slate-300 text-sm mt-1">
+                                            Bạn vẫn có thể sử dụng tất cả tính năng đến ngày <span className="font-semibold text-white">{formatDate(subscription?.endDate)}</span>
                                         </p>
                                     </div>
                                 </div>
@@ -600,13 +599,17 @@ const ProfilePage = () => {
 
                         {/* Scheduled Change Notice */}
                         {(isPremium || isPro) && hasScheduledChange && (
-                            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mb-6">
+                            <div className="bg-sky-100 border-2 border-sky-300 rounded-xl p-4 mb-6 shadow-sm">
                                 <div className="flex items-start gap-3">
-                                    <span className="text-blue-400 text-lg">📅</span>
+                                    <div className="w-10 h-10 bg-sky-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
                                     <div className="flex-1">
-                                        <p className="text-blue-300 font-semibold text-sm">Đã lên lịch chuyển đổi gói</p>
-                                        <p className="text-blue-200/70 text-xs">
-                                            Bạn sẽ chuyển sang gói <span className="font-bold capitalize">{scheduledPlanInfo?.plan}</span> vào ngày {formatDate(scheduledPlanInfo?.changeDate)}. 
+                                        <p className="text-slate-800 font-bold text-base">Đã lên lịch chuyển đổi gói</p>
+                                        <p className="text-slate-600 text-sm mt-1">
+                                            Bạn sẽ chuyển sang gói <span className="font-bold text-slate-800 capitalize">{scheduledPlanInfo?.plan}</span> vào ngày <span className="font-semibold text-slate-800">{formatDate(scheduledPlanInfo?.changeDate)}</span>.
                                             Đến lúc đó, bạn vẫn được sử dụng đầy đủ tính năng hiện tại.
                                         </p>
                                         <button
@@ -624,7 +627,7 @@ const ProfilePage = () => {
                                                 }
                                             }}
                                             disabled={cancelScheduledLoading}
-                                            className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500/20 text-blue-300 text-xs font-semibold rounded-lg hover:bg-blue-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-sky-500 text-white text-sm font-bold rounded-lg hover:bg-sky-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
                                         >
                                             {cancelScheduledLoading ? 'Đang hủy...' : '✕ Hủy lịch chuyển đổi'}
                                         </button>
@@ -646,7 +649,7 @@ const ProfilePage = () => {
                                     Upgrade to Premium
                                 </Link>
                             )}
-                            
+
                             {isPremium && !isPro && !subscription?.cancelAtPeriodEnd && (
                                 <Link
                                     to="/premium"

@@ -1,14 +1,21 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import ReactMarkdown from 'react-markdown';
 import chatService from '../../services/chat.service';
 import { usePremium } from '../../context/PremiumContext';
+import AuthContext from '../../context/AuthContext';
 
 const AIChatBot = () => {
+    const { isAuthenticated } = useContext(AuthContext);
     const { isPro, openPremiumModal } = usePremium();
     const navigate = useNavigate();
+
+    // Only render chatbot if user is authenticated
+    if (!isAuthenticated) {
+        return null;
+    }
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([]);
     const [inputMessage, setInputMessage] = useState('');
@@ -90,10 +97,10 @@ const AIChatBot = () => {
         }
 
         // Add user message to UI immediately
-        const displayMessage = selectedMode !== 'general' 
+        const displayMessage = selectedMode !== 'general'
             ? `[${chatModes.find(m => m.id === selectedMode)?.label}] ${userMessage}`
             : userMessage;
-        
+
         setMessages(prev => [...prev, { role: 'user', content: displayMessage }]);
         setIsLoading(true);
 
@@ -243,14 +250,6 @@ const AIChatBot = () => {
                         <h4 className="text-lg font-bold text-gray-800 mb-2">
                             Tính năng dành cho Pro
                         </h4>
-// ... imports
-                        import {useNavigate} from 'react-router-dom';
-
-                        // ... inside component
-                        const navigate = useNavigate();
-                        // ...
-
-                        // ... inside render
                         <p className="text-gray-600 text-sm mb-6">
                             Nâng cấp lên gói Pro để sử dụng gia sư AI cá nhân, trò chuyện không giới hạn và nhiều tính năng khác!
                         </p>
@@ -396,15 +395,13 @@ const AIChatBot = () => {
                                                             setShowModeMenu(false);
                                                             inputRef.current?.focus();
                                                         }}
-                                                        className={`w-full px-3 py-2.5 flex items-start gap-3 hover:bg-purple-50 transition-colors text-left ${
-                                                            selectedMode === mode.id ? 'bg-purple-100' : ''
-                                                        }`}
+                                                        className={`w-full px-3 py-2.5 flex items-start gap-3 hover:bg-purple-50 transition-colors text-left ${selectedMode === mode.id ? 'bg-purple-100' : ''
+                                                            }`}
                                                     >
                                                         <span className="text-xl flex-shrink-0">{mode.icon}</span>
                                                         <div className="flex-1 min-w-0">
-                                                            <p className={`text-sm font-medium ${
-                                                                selectedMode === mode.id ? 'text-purple-700' : 'text-gray-800'
-                                                            }`}>
+                                                            <p className={`text-sm font-medium ${selectedMode === mode.id ? 'text-purple-700' : 'text-gray-800'
+                                                                }`}>
                                                                 {mode.label.replace(mode.icon + ' ', '')}
                                                             </p>
                                                             <p className="text-xs text-gray-500 mt-0.5">

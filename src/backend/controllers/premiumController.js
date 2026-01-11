@@ -61,8 +61,16 @@ const premiumController = {
             const existingSubscription = await Subscription.findByUserId(userId);
             const planRank = { free: 0, premium: 1, pro: 2 };
 
-            // No existing subscription - create new one
-            if (!existingSubscription || existingSubscription.status !== 'active') {
+            // Check if subscription is still valid (active OR cancelled but within period)
+            const isSubscriptionValid = existingSubscription && (
+                existingSubscription.status === 'active' ||
+                (existingSubscription.status === 'cancelled' &&
+                    existingSubscription.currentPeriodEnd &&
+                    new Date(existingSubscription.currentPeriodEnd) > new Date())
+            );
+
+            // No existing valid subscription - create new one
+            if (!isSubscriptionValid) {
                 if (planId === 'free') {
                     return successResponse(res, 200, 'Bạn đang sử dụng gói miễn phí.', { plan: 'free', status: 'active' });
                 }
@@ -79,10 +87,36 @@ const premiumController = {
                 return errorResponse(res, 400, `Bạn đang sử dụng gói ${PREMIUM_PLANS[planId].name} rồi.`);
             }
 
-            // UPGRADE: Chuyển lên gói cao hơn - áp dụng ngay
+            // If subscription is cancelled but still valid, always schedule the change for end of period
+            // This ensures user keeps their current plan benefits until period ends
+            if (existingSubscription.status === 'cancelled' && existingSubscription.cancelAtPeriodEnd) {
+                const scheduledChangeDate = existingSubscription.currentPeriodEnd;
+                await Subscription.schedulePlanChange(
+                    existingSubscription.id,
+                    planId,
+                    billingCycle,
+                    scheduledChangeDate
+                );
+
+                const updatedSubscription = await Subscription.findByUserId(userId);
+
+                const formattedDate = new Date(scheduledChangeDate).toLocaleDateString('vi-VN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                const actionText = newPlanRank > currentPlanRank ? 'nâng cấp lên' : 'chuyển sang';
+                return successResponse(res, 200,
+                    `Đã lên lịch ${actionText} gói ${PREMIUM_PLANS[planId].name}. Bạn vẫn được sử dụng gói ${PREMIUM_PLANS[existingSubscription.plan].name} đến hết ngày ${formattedDate}. Sau đó hệ thống sẽ tự động chuyển sang gói mới.`,
+                    updatedSubscription
+                );
+            }
+
+            // UPGRADE: Chuyển lên gói cao hơn - áp dụng ngay (chỉ khi subscription đang active, không cancelled)
             if (newPlanRank > currentPlanRank) {
-                await Subscription.update(existingSubscription.id, { 
-                    plan: planId, 
+                await Subscription.update(existingSubscription.id, {
+                    plan: planId,
                     billingCycle,
                     // Clear any scheduled changes
                     scheduledPlan: null,
@@ -98,21 +132,21 @@ const premiumController = {
             // DOWNGRADE: Chuyển xuống gói thấp hơn - lên lịch cho cuối kỳ
             const scheduledChangeDate = existingSubscription.currentPeriodEnd;
             await Subscription.schedulePlanChange(
-                existingSubscription.id, 
-                planId, 
-                billingCycle, 
+                existingSubscription.id,
+                planId,
+                billingCycle,
                 scheduledChangeDate
             );
 
             const updatedSubscription = await Subscription.findByUserId(userId);
-            
+
             const formattedDate = new Date(scheduledChangeDate).toLocaleDateString('vi-VN', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
             });
 
-            return successResponse(res, 200, 
+            return successResponse(res, 200,
                 `Đã lên lịch chuyển sang gói ${PREMIUM_PLANS[planId].name}. Bạn vẫn được sử dụng gói ${PREMIUM_PLANS[existingSubscription.plan].name} đến hết ngày ${formattedDate}. Sau đó hệ thống sẽ tự động chuyển sang gói mới.`,
                 updatedSubscription
             );
@@ -266,8 +300,8 @@ const premiumController = {
             const userId = req.user.userId;
             const subscription = await Subscription.findByUserId(userId);
 
-            const isPremium = subscription && 
-                subscription.status === 'active' && 
+            const isPremium = subscription &&
+                subscription.status === 'active' &&
                 ['premium', 'pro'].includes(subscription.plan);
 
             return successResponse(res, 200, 'Success', {

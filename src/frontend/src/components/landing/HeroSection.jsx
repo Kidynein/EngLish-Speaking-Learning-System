@@ -73,7 +73,7 @@ const HeroSection = () => {
                         className="flex flex-col gap-4 justify-center lg:justify-start items-center lg:items-start"
                     >
                         <Link
-                            to="/signup"
+                            to="/login"
                             className="w-full sm:w-auto px-8 py-4 bg-brand-primary text-slate-900 font-bold rounded-full shadow-lg hover:bg-brand-primary-dark hover:scale-105 transition-all duration-300 ease-in-out text-lg text-center"
                         >
                             Get Started Free

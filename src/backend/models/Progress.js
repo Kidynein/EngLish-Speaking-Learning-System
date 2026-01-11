@@ -78,22 +78,28 @@ class Progress {
 
     // 5. Summary Stats (Top Cards)
     static async getSummaryStats(userId) {
-        const [rows] = await pool.query(`
+        // Get session counts and total minutes
+        const [sessionRows] = await pool.query(`
             SELECT 
                 COUNT(*) as total_sessions,
-                COALESCE(AVG(session_score), 0) as avg_score,
-                SUM(TIMESTAMPDIFF(MINUTE, start_time, COALESCE(end_time, start_time))) as total_minutes
+                COALESCE(SUM(TIMESTAMPDIFF(MINUTE, start_time, COALESCE(end_time, start_time))), 0) as total_minutes
             FROM PracticeSessions
             WHERE user_id = ?
         `, [userId]);
 
+        // Get average score from ExerciseAttempts (more accurate)
+        const [scoreRows] = await pool.query(`
+            SELECT COALESCE(AVG(ea.score_overall), 0) as avg_score
+            FROM ExerciseAttempts ea
+            JOIN PracticeSessions ps ON ea.session_id = ps.session_id
+            WHERE ps.user_id = ?
+        `, [userId]);
+
         return {
-            totalSessions: rows[0].total_sessions,
-            avgScore: Math.round(rows[0].avg_score),
-            totalMinutes: rows[0].total_minutes || 0
-            // streak is handled by UserStats model, usually fetched separately or here if needed
+            totalSessions: sessionRows[0].total_sessions,
+            avgScore: Math.round(scoreRows[0].avg_score),
+            totalMinutes: sessionRows[0].total_minutes || 0
         };
     }
 }
-
 module.exports = Progress;

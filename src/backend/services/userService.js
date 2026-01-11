@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 class UserService {
     static async getProfile(userId) {
         const user = await User.findById(userId);
-        
+
         if (!user) {
             return null;
         }
@@ -17,7 +17,7 @@ class UserService {
     static async updateProfile(userId, data) {
         console.log('[UserService.updateProfile] userId:', userId);
         console.log('[UserService.updateProfile] data:', data);
-        
+
         const updated = await User.update(userId, data);
         console.log('[UserService.updateProfile] updated result:', updated);
 
@@ -29,7 +29,7 @@ class UserService {
         const user = await User.findById(userId);
         console.log('[UserService.updateProfile] fetched user:', user);
         delete user.passwordHash;
-        
+
         return user;
     }
 
@@ -104,6 +104,15 @@ class UserService {
 
     static async getUserStats(userId) {
         return await UserStats.findByUserId(userId);
+    }
+
+    // XP Methods
+    static async getXP(userId) {
+        return await User.getXP(userId);
+    }
+
+    static async addXP(userId, amount) {
+        return await User.addXP(userId, amount);
     }
 }
 

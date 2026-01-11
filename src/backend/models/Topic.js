@@ -9,7 +9,8 @@ class Topic {
             description: row.description,
             thumbnailUrl: row.thumbnail_url,
             difficultyLevel: row.difficulty_level,
-            isActive: Boolean(row.is_active), // Ép kiểu boolean cho chắc chắn
+            isActive: Boolean(row.is_active),
+            requiredPlan: row.required_plan || 'free',
             createdAt: row.created_at,
             updatedAt: row.updated_at
         };

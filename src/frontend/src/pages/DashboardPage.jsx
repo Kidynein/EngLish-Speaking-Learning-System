@@ -13,6 +13,7 @@ import practiceSessionService from "../services/practiceSession.service";
 import { toast } from "react-toastify";
 import PremiumPromoBanner from "../components/dashboard/PremiumPromoBanner.jsx";
 import { usePremium } from "../context/PremiumContext.jsx";
+import { getLevelInfo } from "../utils/levelUtils.js";
 
 function DashboardPage() {
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ function DashboardPage() {
     averageScore: 0
   });
   const [filters, setFilters] = useState({ search: '', level: 'all' });
+  const [userXP, setUserXP] = useState(0);
 
   const LimitTopic = 9;
 
@@ -63,7 +65,20 @@ function DashboardPage() {
       }
     };
 
+    // Fetch User XP
+    const fetchXP = async () => {
+      try {
+        const data = await userService.getXP();
+        if (data && data.data) {
+          setUserXP(data.data.xp || 0);
+        }
+      } catch (error) {
+        console.error("Failed to load XP:", error);
+      }
+    };
+
     fetchStats();
+    fetchXP();
     // fetchTopics called by filter effect below
   }, []);
 
@@ -114,7 +129,19 @@ function DashboardPage() {
   };
 
 
-  const handleStartTopic = async (topicId) => {
+
+  const handleStartTopic = async (topicId, requiredPlan = 'free') => {
+    // Check access permission
+    const planHierarchy = { free: 0, premium: 1, pro: 2 };
+    const userPlanLevel = isPro ? 2 : isPremium ? 1 : 0;
+    const requiredPlanLevel = planHierarchy[requiredPlan] || 0;
+
+    if (userPlanLevel < requiredPlanLevel) {
+      toast.warning(`This topic requires ${requiredPlan === 'pro' ? 'Pro' : 'Premium'} subscription!`);
+      navigate('/premium');
+      return;
+    }
+
     try {
       // 1. Get lessons for topic
       const lessons = await topicService.getLessonsByTopic(topicId);
@@ -290,13 +317,18 @@ function DashboardPage() {
                 description="overall performance"
                 color="secondary"
               />
-              {/* Temporary Placeholder or another stat if available */}
-              <StatCard
-                label="Levels"
-                value="N/A"
-                description="coming soon"
-                color="gray"
-              />
+              {/* Level Card */}
+              {(() => {
+                const levelInfo = getLevelInfo(userXP);
+                return (
+                  <StatCard
+                    label={`Level ${levelInfo.currentLevel}`}
+                    value={`${levelInfo.emoji} ${levelInfo.title}`}
+                    description={`${levelInfo.progressPercent}% to Lv ${levelInfo.currentLevel + 1} (${userXP} XP)`}
+                    color="tertiary"
+                  />
+                );
+              })()}
             </section>
 
             {/* Topics Section */}
@@ -328,11 +360,14 @@ function DashboardPage() {
                     >
                       <TopicCard
                         title={topic.name}
-                        percent={topic.progress || 0} // Display real progress or 0
-                        color="from-brand-primary to-brand-secondary"
-                        emoji="👋"
-                        onClick={() => handleStartTopic(topic.id)}
-                        isLoading={false}
+                        percent={topic.progress || 0}
+                        requiredPlan={topic.requiredPlan || 'free'}
+                        userPlan={isPro ? 'pro' : isPremium ? 'premium' : 'free'}
+                        onClick={() => handleStartTopic(topic.id, topic.requiredPlan)}
+                        onUpgradeClick={(plan) => {
+                          toast.info(`Upgrade to ${plan === 'pro' ? 'Pro' : 'Premium'} to access this topic!`);
+                          navigate('/premium');
+                        }}
                       />
                     </motion.div>
                   ))}

@@ -27,7 +27,8 @@ const UserDropdown = () => {
     const handleLogout = () => {
         logout();
         setIsOpen(false);
-        navigate("/"); // Redirect to home/landing after logout
+        // Force page reload to reset all contexts
+        window.location.href = "/";
     };
 
     if (!user) return null;

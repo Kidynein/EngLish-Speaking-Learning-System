@@ -123,20 +123,22 @@ const PremiumLandingPage = () => {
             return;
         }
 
-        // Nếu đang ở Pro mà bấm Premium -> hiện modal xác nhận downgrade
+        // Nếu đang ở Pro mà bấm Premium -> hiện modal xác nhận downgrade (scheduled change)
         if (isPro && planId === 'premium') {
             setSelectedDowngradePlan(planId);
             setShowDowngradeModal(true);
             return;
         }
 
-        // Nếu đang ở Premium mà bấm Pro -> upgrade ngay
-        if (isPremium && planId === 'pro') {
-            navigate('/premium/checkout', { state: { planId, billingCycle } });
+        // Nếu đang ở Premium mà bấm Pro -> hiện modal xác nhận upgrade (scheduled change)
+        // Thay vì upgrade ngay, tạo scheduled change để chuyển vào cuối kỳ
+        if (isPremium && !isPro && planId === 'pro') {
+            setSelectedDowngradePlan(planId); // Reuse state cho cả upgrade
+            setShowDowngradeModal(true); // Reuse modal với nội dung phù hợp
             return;
         }
 
-        // Trường hợp còn lại -> đi đến checkout
+        // Trường hợp còn lại (user free hoặc chưa có subscription) -> đi đến checkout
         navigate('/premium/checkout', { state: { planId, billingCycle } });
     };
 
@@ -340,7 +342,7 @@ const PremiumLandingPage = () => {
                 </motion.div>
             )}
 
-            {/* Downgrade Confirmation Modal */}
+            {/* Plan Change Confirmation Modal */}
             {showDowngradeModal && (
                 <motion.div
                     initial={{ opacity: 0 }}
@@ -356,21 +358,27 @@ const PremiumLandingPage = () => {
                         className="relative bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden border border-slate-700"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        {/* Header with gradient */}
-                        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 p-6 text-center">
+                        {/* Header with gradient - dynamic based on target plan */}
+                        <div className={`p-6 text-center ${selectedDowngradePlan === 'pro'
+                            ? 'bg-gradient-to-r from-purple-600 to-pink-600'
+                            : 'bg-gradient-to-r from-emerald-600 to-teal-600'
+                            }`}>
                             <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
                             </div>
+                            <h3 className="text-xl font-bold text-white">
+                                {selectedDowngradePlan === 'pro' ? 'Nâng cấp lên Pro' : 'Chuyển sang Premium'}
+                            </h3>
                         </div>
 
                         {/* Content */}
                         <div className="p-6">
                             <p className="text-slate-300 text-center leading-relaxed mb-6">
-                                Bạn đang sử dụng gói <span className="font-bold text-white">{currentPlan?.name}</span> (hết hạn ngày <span className="font-semibold">{formatDate(subscription?.endDate)}</span>). 
-                                Việc chuyển sang gói <span className="font-bold text-white capitalize">{selectedDowngradePlan}</span> sẽ có hiệu lực vào chu kỳ thanh toán tiếp theo. 
-                                Từ nay đến đó, bạn vẫn sử dụng quyền lợi <span className="font-bold text-white">{currentPlan?.name}</span> bình thường. 
+                                Bạn đang sử dụng gói <span className="font-bold text-white">{currentPlan?.name}</span> (hết hạn ngày <span className="font-semibold">{formatDate(subscription?.endDate)}</span>).
+                                Việc chuyển sang gói <span className="font-bold text-white capitalize">{selectedDowngradePlan}</span> sẽ có hiệu lực vào chu kỳ thanh toán tiếp theo.
+                                Từ nay đến đó, bạn vẫn sử dụng quyền lợi <span className="font-bold text-white">{currentPlan?.name}</span> bình thường.
                                 <br /><br />
                                 Bạn có xác nhận thay đổi không?
                             </p>
@@ -379,7 +387,10 @@ const PremiumLandingPage = () => {
                             <div className="flex gap-3">
                                 <button
                                     onClick={confirmDowngrade}
-                                    className="flex-1 px-6 py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition-all shadow-lg"
+                                    className={`flex-1 px-6 py-3 text-white font-semibold rounded-xl transition-all shadow-lg ${selectedDowngradePlan === 'pro'
+                                        ? 'bg-purple-600 hover:bg-purple-700'
+                                        : 'bg-emerald-600 hover:bg-emerald-700'
+                                        }`}
                                 >
                                     Đồng ý
                                 </button>
@@ -406,24 +417,22 @@ const PremiumLandingPage = () => {
                     animate={{ opacity: 1, y: 0 }}
                     className="max-w-3xl mx-auto mb-16"
                 >
-                    <div className={`rounded-2xl border overflow-hidden ${
-                        isPro 
-                            ? 'bg-gradient-to-br from-purple-900/50 to-pink-900/50 border-purple-500/50' 
-                            : 'bg-gradient-to-br from-emerald-900/50 to-green-900/50 border-emerald-500/50'
-                    }`}>
+                    <div className={`rounded-2xl border overflow-hidden ${isPro
+                        ? 'bg-gradient-to-br from-purple-900/50 to-pink-900/50 border-purple-500/50'
+                        : 'bg-gradient-to-br from-emerald-900/50 to-green-900/50 border-emerald-500/50'
+                        }`}>
                         <div className="p-8">
                             <div className="flex items-center justify-between mb-6">
                                 <div className="flex items-center gap-4">
-                                    <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
-                                        isPro ? 'bg-purple-500' : 'bg-emerald-500/30'
-                                    }`}>
+                                    <div className={`w-14 h-14 rounded-full flex items-center justify-center ${isPro ? 'bg-purple-500' : 'bg-emerald-500/30'
+                                        }`}>
                                         {isPro ? (
                                             <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none">
-                                                <path d="M2.5 19h19v2h-19v-2z" fill="#F59E0B"/>
-                                                <path d="M22 7l-5 4-5-6-5 6-5-4 2 11h16l2-11z" fill="#FBBF24"/>
-                                                <circle cx="12" cy="5" r="2" fill="#F59E0B"/>
-                                                <circle cx="4" cy="9" r="1.5" fill="#F59E0B"/>
-                                                <circle cx="20" cy="9" r="1.5" fill="#F59E0B"/>
+                                                <path d="M2.5 19h19v2h-19v-2z" fill="#F59E0B" />
+                                                <path d="M22 7l-5 4-5-6-5 6-5-4 2 11h16l2-11z" fill="#FBBF24" />
+                                                <circle cx="12" cy="5" r="2" fill="#F59E0B" />
+                                                <circle cx="4" cy="9" r="1.5" fill="#F59E0B" />
+                                                <circle cx="20" cy="9" r="1.5" fill="#F59E0B" />
                                             </svg>
                                         ) : (
                                             <svg className="w-7 h-7 text-emerald-300" fill="currentColor" viewBox="0 0 24 24">
@@ -440,11 +449,10 @@ const PremiumLandingPage = () => {
                                         </p>
                                     </div>
                                 </div>
-                                <span className={`px-4 py-2 rounded-full text-sm font-bold ${
-                                    subscription?.cancelAtPeriodEnd 
-                                        ? 'bg-yellow-400 text-yellow-900'
-                                        : 'bg-green-400 text-green-900'
-                                }`}>
+                                <span className={`px-4 py-2 rounded-full text-sm font-bold ${subscription?.cancelAtPeriodEnd
+                                    ? 'bg-yellow-400 text-yellow-900'
+                                    : 'bg-green-400 text-green-900'
+                                    }`}>
                                     {subscription?.cancelAtPeriodEnd ? 'Sẽ hết hạn' : 'Đang hoạt động'}
                                 </span>
                             </div>
@@ -470,37 +478,25 @@ const PremiumLandingPage = () => {
                                     </p>
                                 </div>
                             </div>
-
-                            {subscription?.cancelAtPeriodEnd ? (
-                                <div className="bg-yellow-400/20 border border-yellow-400/50 rounded-xl p-4 mb-6">
-                                    <div className="flex items-start gap-3">
-                                        <svg className="w-5 h-5 text-yellow-300 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                        </svg>
-                                        <div>
-                                            <p className="text-yellow-100 font-semibold">Gói đăng ký đã được hủy</p>
-                                            <p className="text-yellow-200 text-sm">
-                                                Bạn vẫn có thể sử dụng tất cả tính năng {currentPlan?.name} đến ngày {formatDate(subscription?.endDate)}
-                                            </p>
+                            {/* Priority: Scheduled Change > Cancelled > Action Buttons */}
+                            {hasScheduledChange ? (
+                                <div className="bg-sky-100 border-2 border-sky-300 rounded-xl p-5 mb-6 shadow-sm">
+                                    <div className="flex items-start gap-4">
+                                        <div className="w-12 h-12 bg-sky-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
+                                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
                                         </div>
-                                    </div>
-                                </div>
-                            ) : hasScheduledChange ? (
-                                <div className="bg-blue-400/20 border border-blue-400/50 rounded-xl p-4 mb-6">
-                                    <div className="flex items-start gap-3">
-                                        <svg className="w-5 h-5 text-blue-300 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
                                         <div className="flex-1">
-                                            <p className="text-blue-100 font-semibold">Đã lên lịch chuyển đổi gói</p>
-                                            <p className="text-blue-200 text-sm">
-                                                Bạn sẽ chuyển sang gói <span className="font-bold capitalize">{scheduledPlanInfo?.plan}</span> vào ngày {formatDate(scheduledPlanInfo?.changeDate)}. 
-                                                Đến lúc đó, bạn vẫn được sử dụng đầy đủ tính năng {currentPlan?.name}.
+                                            <p className="text-slate-800 font-bold text-lg">Đã lên lịch chuyển đổi gói</p>
+                                            <p className="text-slate-600 text-sm mt-1">
+                                                Bạn sẽ chuyển sang gói <span className="font-bold text-slate-800 capitalize">{scheduledPlanInfo?.plan}</span> vào ngày <span className="font-semibold text-slate-800">{formatDate(scheduledPlanInfo?.changeDate)}</span>.
+                                                Đến lúc đó, bạn vẫn được sử dụng đầy đủ tính năng <span className="font-semibold text-slate-800">{currentPlan?.name}</span>.
                                             </p>
                                             <button
                                                 onClick={handleCancelScheduledChange}
                                                 disabled={cancelScheduledLoading}
-                                                className="mt-3 flex items-center gap-2 px-4 py-2 bg-blue-500/30 text-blue-100 text-sm font-semibold rounded-lg hover:bg-blue-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                                className="mt-3 flex items-center gap-2 px-4 py-2 bg-sky-500 text-white text-sm font-bold rounded-lg hover:bg-sky-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
                                             >
                                                 {cancelScheduledLoading ? (
                                                     <>
@@ -519,6 +515,22 @@ const PremiumLandingPage = () => {
                                                     </>
                                                 )}
                                             </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : subscription?.cancelAtPeriodEnd ? (
+                                <div className="bg-amber-500/20 border-2 border-amber-400/50 rounded-xl p-5 mb-6 shadow-lg">
+                                    <div className="flex items-start gap-4">
+                                        <div className="w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
+                                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p className="text-white font-bold text-lg">Gói đăng ký đã được hủy</p>
+                                            <p className="text-slate-300 text-sm mt-1">
+                                                Bạn vẫn có thể sử dụng tất cả tính năng <span className="font-semibold text-white">{currentPlan?.name}</span> đến ngày <span className="font-semibold text-white">{formatDate(subscription?.endDate)}</span>
+                                            </p>
                                         </div>
                                     </div>
                                 </div>

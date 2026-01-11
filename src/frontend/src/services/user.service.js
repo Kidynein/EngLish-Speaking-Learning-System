@@ -44,6 +44,17 @@ const userService = {
     getUserHistory: async (userId, params = {}) => {
         const response = await api.get(`/users/${userId}/history`, { params });
         return response.data;
+    },
+
+    // XP Methods
+    getXP: async () => {
+        const response = await api.get("/users/xp");
+        return response.data;
+    },
+
+    addXP: async (amount, reason = '') => {
+        const response = await api.post("/users/xp", { amount, reason });
+        return response.data;
     }
 };
 

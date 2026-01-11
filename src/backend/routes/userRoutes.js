@@ -8,6 +8,10 @@ router.get('/profile', authenticate, userController.getProfile);
 router.put('/profile', authenticate, userController.updateProfile);
 router.put('/change-password', authenticate, userController.changePassword);
 
+// XP routes
+router.get('/xp', authenticate, userController.getXP);
+router.post('/xp', authenticate, userController.addXP);
+
 router.get('/', userController.getAllUsers);
 // Admin routes (Quản lý user khác)
 router.get('/admin', authenticate, authorize('admin'), userController.getAllUsers);
