@@ -13,7 +13,7 @@ export default defineConfig({
       },
     },
   },
-    build: {
+  build: {
     outDir: 'dist',
     sourcemap: false,
     rollupOptions: {
