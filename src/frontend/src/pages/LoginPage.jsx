@@ -28,8 +28,8 @@ function LoginPage() {
 
       if (token && user) {
         login(user, token); // Update global AuthContext state
-        // Navigation is handled here explicitly to ensure timing
-        navigate("/dashboard");
+        // Force page reload to ensure all contexts are properly initialized
+        window.location.href = "/dashboard";
       } else {
         throw new Error("Invalid response from server");
       }

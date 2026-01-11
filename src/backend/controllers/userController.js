@@ -8,9 +8,9 @@ exports.getProfile = async (req, res) => {
         // req.user.userId lấy từ middleware authenticate
         const userId = req.params.id || req.user.userId;
         const user = await UserService.getProfile(userId);
-        
+
         if (!user) return errorResponse(res, 404, 'User not found');
-        
+
         successResponse(res, 200, 'Profile retrieved', user);
     } catch (error) {
         errorResponse(res, 500, error.message);
@@ -23,16 +23,16 @@ exports.updateProfile = async (req, res) => {
         const userId = req.user.userId; // User chỉ sửa được của chính mình
         console.log('[updateProfile] userId:', userId);
         console.log('[updateProfile] req.body:', req.body);
-        
+
         const user = await UserService.updateProfile(userId, req.body);
-        
+
         console.log('[updateProfile] result user:', user);
-        
+
         if (!user) {
             console.log('[updateProfile] Update failed - user is null');
             return errorResponse(res, 400, 'Update failed');
         }
-        
+
         successResponse(res, 200, 'Profile updated', user);
     } catch (error) {
         console.error('[updateProfile] Error:', error);
@@ -56,11 +56,11 @@ exports.changePassword = async (req, res) => {
         }
 
         const success = await UserService.changePassword(userId, currentPassword, newPassword);
-        
+
         if (!success) {
             return errorResponse(res, 400, 'Current password is incorrect');
         }
-        
+
         successResponse(res, 200, 'Password changed successfully');
     } catch (error) {
         errorResponse(res, 500, error.message);
@@ -87,9 +87,9 @@ exports.updateUser = async (req, res) => {
     try {
         const { fullName, role, isActive } = req.body;
         const user = await UserService.updateUser(req.params.id, { fullName, role, isActive });
-        
+
         if (!user) return errorResponse(res, 400, 'Update failed');
-        
+
         successResponse(res, 200, 'User updated', user);
     } catch (error) {
         errorResponse(res, 500, error.message);
@@ -100,15 +100,47 @@ exports.updateUser = async (req, res) => {
 exports.deleteUser = async (req, res) => {
     try {
         const userId = req.params.id;
-        
+
         // Prevent deleting self
         if (userId == req.user.userId) {
             return errorResponse(res, 400, 'Cannot delete your own account');
         }
-        
+
         const deleted = await UserService.deleteUser(userId);
         if (deleted) successResponse(res, 200, 'User deleted');
         else errorResponse(res, 404, 'User not found');
+    } catch (error) {
+        errorResponse(res, 500, error.message);
+    }
+};
+
+// Get user XP
+exports.getXP = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const xp = await UserService.getXP(userId);
+        successResponse(res, 200, 'XP retrieved', { xp });
+    } catch (error) {
+        errorResponse(res, 500, error.message);
+    }
+};
+
+// Add XP to user
+exports.addXP = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const { amount, reason } = req.body;
+
+        if (!amount || amount <= 0) {
+            return errorResponse(res, 400, 'Invalid XP amount');
+        }
+
+        const result = await UserService.addXP(userId, amount);
+        successResponse(res, 200, 'XP added', {
+            xpAdded: amount,
+            newXP: result.newXP,
+            reason
+        });
     } catch (error) {
         errorResponse(res, 500, error.message);
     }
