@@ -113,70 +113,63 @@ const normalizeText = (text) => {
 
 /**
  * Align spoken words with target words and determine status
- * Uses simple sequential matching with tolerance for small errors
+ * Uses Longest Common Subsequence (LCS) for better alignment
+ * Handles extra words, missing words, and incorrect words properly
  */
 const alignWords = (targetWords, spokenWords) => {
     const feedback = [];
-    let spokenIndex = 0;
 
-    for (let i = 0; i < targetWords.length; i++) {
-        const targetWord = targetWords[i];
+    // Build LCS table
+    const m = targetWords.length;
+    const n = spokenWords.length;
+    const dp = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
 
-        if (spokenIndex >= spokenWords.length) {
-            // User didn't say this word
-            feedback.push({
-                word: targetWord,
-                status: 'missing',
-                expected: targetWord
-            });
-            continue;
-        }
-
-        const spokenWord = spokenWords[spokenIndex];
-
-        // Check for exact match
-        if (targetWord === spokenWord) {
-            feedback.push({
-                word: targetWord,
-                status: 'correct',
-                spoken: spokenWord
-            });
-            spokenIndex++;
-        }
-        // Check for partial match (e.g., "running" vs "run")
-        else if (isSimilar(targetWord, spokenWord)) {
-            feedback.push({
-                word: targetWord,
-                status: 'partial',
-                expected: targetWord,
-                spoken: spokenWord
-            });
-            spokenIndex++;
-        }
-        // Check if the next spoken word matches (skipped a word)
-        else if (spokenIndex + 1 < spokenWords.length && targetWord === spokenWords[spokenIndex + 1]) {
-            // Current spoken word is extra, mark target as incorrect
-            feedback.push({
-                word: targetWord,
-                status: 'incorrect',
-                expected: targetWord,
-                spoken: spokenWord
-            });
-            spokenIndex += 2; // Skip the extra word and move to matching word
-        }
-        // Word is incorrect
-        else {
-            feedback.push({
-                word: targetWord,
-                status: 'incorrect',
-                expected: targetWord,
-                spoken: spokenWord
-            });
-            spokenIndex++;
+    for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+            if (targetWords[i - 1] === spokenWords[j - 1] || isSimilar(targetWords[i - 1], spokenWords[j - 1])) {
+                dp[i][j] = dp[i - 1][j - 1] + 1;
+            } else {
+                dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+            }
         }
     }
 
-    return feedback;
+    // Backtrack to find alignment
+    const alignedResult = [];
+    let i = m, j = n;
+
+    while (i > 0 || j > 0) {
+        if (i > 0 && j > 0 && (targetWords[i - 1] === spokenWords[j - 1] || isSimilar(targetWords[i - 1], spokenWords[j - 1]))) {
+            // Match or partial match
+            const isExact = targetWords[i - 1] === spokenWords[j - 1];
+            alignedResult.unshift({
+                word: targetWords[i - 1],
+                status: isExact ? 'correct' : 'partial',
+                expected: targetWords[i - 1],
+                spoken: spokenWords[j - 1]
+            });
+            i--;
+            j--;
+        } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
+            // Extra word spoken (not in target)
+            alignedResult.unshift({
+                word: spokenWords[j - 1],
+                status: 'extra',
+                spoken: spokenWords[j - 1]
+            });
+            j--;
+        } else if (i > 0) {
+            // Missing word (in target but not spoken)
+            alignedResult.unshift({
+                word: targetWords[i - 1],
+                status: 'missing',
+                expected: targetWords[i - 1]
+            });
+            i--;
+        }
+    }
+
+    return alignedResult;
 };
 
 /**

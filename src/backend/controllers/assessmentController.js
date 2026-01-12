@@ -14,7 +14,6 @@ const fileFilter = (req, file, cb) => {
         'audio/wave',
         'audio/x-wav',
         'audio/mp3',
-        'audio/mpeg',
         'audio/ogg',
         'audio/flac',
         'audio/m4a',

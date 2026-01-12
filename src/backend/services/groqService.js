@@ -35,11 +35,11 @@ try {
     if (!GROQ_API_KEY) {
         throw new Error('GROQ_API_KEY is missing in .env file');
     }
-    
+
     groq = new Groq({
         apiKey: GROQ_API_KEY
     });
-    
+
     console.log('[Groq] ✅ Groq client initialized successfully');
 } catch (error) {
     initializationError = error;
@@ -52,12 +52,12 @@ try {
  */
 async function testConnection() {
     console.log('\n[Groq] 🔍 Testing API connection...');
-    
+
     if (!groq) {
         console.error('[Groq] ❌ Connection test FAILED: Client not initialized');
         return { success: false, error: 'Client not initialized' };
     }
-    
+
     try {
         // Simple test: list available models
         const models = await groq.models.list();
@@ -105,44 +105,44 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
  */
 async function withRetry(fn, context = 'API call') {
     let lastError;
-    
+
     for (let attempt = 1; attempt <= RETRY_CONFIG.maxRetries; attempt++) {
         try {
             const now = Date.now();
             const timeSinceLastRequest = now - lastRequestTime;
-            
+
             if (timeSinceLastRequest < MIN_REQUEST_INTERVAL_MS) {
                 const waitTime = MIN_REQUEST_INTERVAL_MS - timeSinceLastRequest;
                 console.log(`[Groq] Rate limiting: waiting ${waitTime}ms...`);
                 await sleep(waitTime);
             }
-            
+
             lastRequestTime = Date.now();
             return await fn();
-            
+
         } catch (error) {
             lastError = error;
-            const isRetryable = error.status === 429 || 
-                               error.status === 503 || 
-                               error.status === 500 ||
-                               error.message?.toLowerCase().includes('rate');
-            
+            const isRetryable = error.status === 429 ||
+                error.status === 503 ||
+                error.status === 500 ||
+                error.message?.toLowerCase().includes('rate');
+
             if (!isRetryable || attempt === RETRY_CONFIG.maxRetries) {
                 throw error;
             }
-            
+
             const delay = Math.min(
                 RETRY_CONFIG.initialDelayMs * Math.pow(RETRY_CONFIG.backoffMultiplier, attempt - 1),
                 RETRY_CONFIG.maxDelayMs
             );
-            
+
             console.log(`[Groq] ⚠️ ${context} attempt ${attempt}/${RETRY_CONFIG.maxRetries} failed`);
             console.log(`[Groq] 🔄 Retrying in ${delay}ms...`);
-            
+
             await sleep(delay);
         }
     }
-    
+
     throw lastError;
 }
 
@@ -153,7 +153,7 @@ const ASSESSMENT_SCHEMA = {
     overall_score: "integer 0-100",
     scores: {
         pronunciation: "integer 0-100",
-        fluency: "integer 0-100", 
+        fluency: "integer 0-100",
         confidence: "integer 0-100"
     },
     word_analysis: [{
@@ -177,7 +177,7 @@ const ASSESSMENT_SCHEMA = {
  */
 function normalizeText(text) {
     if (!text) return '';
-    
+
     return text
         .toLowerCase()
         .trim()
@@ -195,14 +195,14 @@ function normalizeText(text) {
 function calculateSimilarity(text1, text2) {
     const words1 = normalizeText(text1).split(/\s+/).filter(w => w.length > 0);
     const words2 = normalizeText(text2).split(/\s+/).filter(w => w.length > 0);
-    
+
     if (words1.length === 0 || words2.length === 0) {
         return { similarity: 0, matchedWords: 0, totalWords: Math.max(words1.length, words2.length) };
     }
-    
+
     let matchCount = 0;
     const matchedPairs = [];
-    
+
     for (const w1 of words1) {
         for (const w2 of words2) {
             // Exact match or fuzzy match (one contains the other, useful for short words)
@@ -213,9 +213,9 @@ function calculateSimilarity(text1, text2) {
             }
         }
     }
-    
+
     const similarity = matchCount / words1.length;
-    
+
     return {
         similarity,
         matchedWords: matchCount,
@@ -237,7 +237,7 @@ function isOffTopicContent(userTranscription, targetSentence) {
     // Normalize both texts for fair comparison
     const normalizedTranscript = normalizeText(userTranscription);
     const normalizedTarget = normalizeText(targetSentence);
-    
+
     console.log(`[OffTopic] Normalized target: "${normalizedTarget}"`);
     console.log(`[OffTopic] Normalized transcript: "${normalizedTranscript}"`);
 
@@ -262,7 +262,7 @@ function isOffTopicContent(userTranscription, targetSentence) {
     // Only check patterns if transcript is significantly different from target
     const simResult = calculateSimilarity(normalizedTarget, normalizedTranscript);
     console.log(`[OffTopic] Similarity: ${(simResult.similarity * 100).toFixed(1)}% (${simResult.matchedWords}/${simResult.totalWords} words)`);
-    
+
     // If similarity is above 50%, it's likely a valid attempt (even with errors)
     if (simResult.similarity >= 0.5) {
         console.log(`[OffTopic] ✅ High similarity - valid pronunciation attempt`);
@@ -351,7 +351,7 @@ async function transcribeAudio(audioBuffer, mimeType = 'audio/webm') {
         'audio/m4a': '.m4a',
         'audio/mp4': '.m4a'
     };
-    
+
     const ext = extMap[mimeType] || '.webm';
     const tempFilePath = path.join(os.tmpdir(), `groq_audio_${Date.now()}${ext}`);
 
@@ -483,6 +483,12 @@ If input is irrelevant/off-topic, you MUST return EXACTLY:
 }
 
 === JSON OUTPUT FOR VALID ATTEMPTS ===
+IMPORTANT: word_analysis MUST include ALL words from the comparison:
+1. All TARGET words (mark as omission if user didn't say them)
+2. All EXTRA words user said that are NOT in target (mark as insertion)
+
+List words in the ORDER they should appear (target order, with insertions placed where user said them).
+
 {
   "overall_score": <0-100>,
   "scores": {
@@ -491,13 +497,17 @@ If input is irrelevant/off-topic, you MUST return EXACTLY:
     "confidence": <0-100>
   },
   "word_analysis": [
-    {
-      "word": "<target word>",
-      "is_correct": <boolean>,
-      "heard_as": "<what user said or 'MISSING'>",
-      "ipa_target": "<IPA transcription>",
-      "error_type": "<none|substitution|omission|insertion|distortion>"
-    }
+    // For TARGET words that match what user said:
+    { "word": "<target word>", "is_correct": true, "heard_as": "<same word>", "ipa_target": "<IPA>", "error_type": "none" },
+    
+    // For TARGET words user missed (didn't say):
+    { "word": "<target word>", "is_correct": false, "heard_as": "MISSING", "ipa_target": "<IPA>", "error_type": "omission" },
+    
+    // For TARGET words user said differently:
+    { "word": "<target word>", "is_correct": false, "heard_as": "<what user said>", "ipa_target": "<IPA>", "error_type": "substitution" },
+    
+    // For EXTRA words user said (not in target):
+    { "word": "<extra word user said>", "is_correct": false, "heard_as": "<same extra word>", "ipa_target": "", "error_type": "insertion" }
   ],
   "feedback_message": "<feedback about pronunciation ONLY, no emojis>"
 }
@@ -614,23 +624,23 @@ async function analyzePronunciation(audioBuffer, targetSentence, mimeType = 'aud
         console.log(`   - Target: "${targetSentence.toLowerCase().trim()}"`);
         console.log(`   - Transcription: "${userTranscription.toLowerCase().trim()}"`);
         const offTopicCheck = isOffTopicContent(userTranscription, targetSentence);
-        
+
         if (offTopicCheck.isOffTopic) {
             console.log(`[Pipeline] ⚠️ OFF-TOPIC DETECTED! Reason: ${offTopicCheck.reason}`);
             console.log('[Pipeline] Returning zero score without LLM call (saves API quota)');
-            
+
             const offTopicResponse = generateOffTopicResponse(targetSentence, offTopicCheck.reason);
             offTopicResponse.transcription = userTranscription;
-            
+
             const totalTime = Date.now() - pipelineStartTime;
             console.log('\n' + '='.repeat(60));
             console.log(`[Pipeline] ✅ COMPLETE (OFF-TOPIC) in ${totalTime}ms`);
             console.log(`[Pipeline] Final Score: 0/100 (off-topic content)`);
             console.log('='.repeat(60) + '\n');
-            
+
             return offTopicResponse;
         }
-        
+
         console.log(`[Pipeline] ✅ Content appears relevant (similarity: ${((offTopicCheck.similarity || 0) * 100).toFixed(1)}%)`);
 
         // ========== STEP 2: ANALYZE ==========
@@ -656,15 +666,15 @@ async function analyzePronunciation(audioBuffer, targetSentence, mimeType = 'aud
 
         // Categorize errors
         const errorMsg = error.message?.toLowerCase() || '';
-        
+
         if (error.status === 401 || errorMsg.includes('api key') || errorMsg.includes('unauthorized')) {
             throw new Error('API_KEY_INVALID: The Groq API key is invalid. Get a free key at https://console.groq.com/keys');
         }
-        
+
         if (error.status === 429 || errorMsg.includes('rate') || errorMsg.includes('limit')) {
             throw new Error('RATE_LIMITED: Groq API rate limit reached. Please wait a moment and try again.');
         }
-        
+
         if (error.status >= 500) {
             throw new Error('SERVER_ERROR: Groq API server error. Please try again later.');
         }

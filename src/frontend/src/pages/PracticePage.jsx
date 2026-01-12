@@ -169,7 +169,26 @@ function PracticePage() {
             if (response.success && response.data?.assessment) {
                 const assessment = response.data.assessment;
 
-                // Map Gemini response to our format
+                // Helper function to map Llama error types to display status
+                const getWordStatus = (wordData) => {
+                    if (wordData.is_correct) return 'correct';
+
+                    switch (wordData.error_type) {
+                        case 'none':
+                            return 'correct';
+                        case 'omission':
+                            return 'missing'; // User didn't say this word
+                        case 'insertion':
+                            return 'extra'; // User said extra word not in target
+                        case 'distortion':
+                            return 'partial'; // Word was unclear/partial match
+                        case 'substitution':
+                        default:
+                            return 'incorrect'; // User said wrong word
+                    }
+                };
+
+                // Map Groq/Llama response to our format
                 const scoreData = {
                     overallScore: assessment.overall_score,
                     pronunciationScore: assessment.scores.pronunciation,
@@ -177,9 +196,9 @@ function PracticePage() {
                     confidenceScore: assessment.scores.confidence,
                     feedback: assessment.word_analysis.map(w => ({
                         word: w.word,
-                        status: w.is_correct ? 'correct' : 'incorrect',
+                        status: getWordStatus(w),
                         expected: w.word,
-                        spoken: w.heard_as,
+                        spoken: w.heard_as || (w.error_type === 'omission' ? 'MISSING' : null),
                         ipa: w.ipa_target,
                         errorType: w.error_type
                     }))
@@ -188,18 +207,21 @@ function PracticePage() {
                 // Use AI-generated feedback message
                 const feedbackMessage = assessment.feedback_message;
 
+                // Get the AI transcription (what Whisper heard) - this should match word_analysis
+                const aiTranscript = assessment.transcription || transcript || "(No speech detected)";
+
                 // Accumulate score
                 setAccumulatedScore(prev => prev + scoreData.overallScore);
 
-                // Save attempt to backend
-                await saveAttempt(scoreData, feedbackMessage, transcript);
+                // Save attempt to backend (use AI transcription for consistency)
+                await saveAttempt(scoreData, feedbackMessage, aiTranscript);
 
-                // Update UI
+                // Update UI - Use AI transcription for "You Said" to match Word Analysis
                 setFeedbackData({
                     score: scoreData.overallScore,
                     feedback: feedbackMessage,
                     wordFeedback: scoreData.feedback,
-                    transcript: transcript || "(Transcribed by AI)",
+                    transcript: aiTranscript, // Use Whisper transcript, not Web Speech API
                     scoreDetails: {
                         pronunciation: scoreData.pronunciationScore,
                         fluency: scoreData.fluencyScore,
@@ -346,9 +368,6 @@ function PracticePage() {
 
     if (!currentExercise) return null;
 
-    // Combine final and interim transcripts for display
-    const displayTranscript = transcript + (interimTranscript ? ' ' + interimTranscript : '');
-
     return (
         <PracticeSessionLayout>
             {/* Top Bar: Back Button & Progress */}
@@ -381,21 +400,39 @@ function PracticePage() {
                     )}
                 </div>
 
-                {/* Real-time Transcript Display */}
-                {(isRecording || displayTranscript) && (
+                {/* Recording Status Display - Only show during recording */}
+                {isRecording && (
                     <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6 max-w-3xl w-full">
                         <p className="text-xs uppercase tracking-wider text-blue-600 font-semibold mb-2">
-                            You said:
+                            Recording...
                         </p>
-                        <p className="text-2xl text-gray-800 min-h-[60px]">
-                            <span className="font-medium">{transcript}</span>
-                            {interimTranscript && (
-                                <span className="text-gray-400 italic"> {interimTranscript}</span>
-                            )}
-                            {isRecording && !displayTranscript && (
-                                <span className="text-gray-400 animate-pulse">Listening...</span>
-                            )}
+                        <div className="flex items-center gap-3 min-h-[60px]">
+                            {/* Audio wave animation */}
+                            <div className="flex items-center gap-1">
+                                <div className="w-1 h-8 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '0ms' }}></div>
+                                <div className="w-1 h-12 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '150ms' }}></div>
+                                <div className="w-1 h-6 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '300ms' }}></div>
+                                <div className="w-1 h-10 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '450ms' }}></div>
+                                <div className="w-1 h-8 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '600ms' }}></div>
+                            </div>
+                            <span className="text-xl text-gray-500 animate-pulse">Listening to your voice...</span>
+                        </div>
+                    </div>
+                )}
+
+                {/* Processing Status Display */}
+                {isProcessing && !isRecording && (
+                    <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-6 max-w-3xl w-full">
+                        <p className="text-xs uppercase tracking-wider text-amber-600 font-semibold mb-2">
+                            Processing...
                         </p>
+                        <div className="flex items-center gap-3 min-h-[60px]">
+                            <svg className="animate-spin h-6 w-6 text-amber-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span className="text-xl text-gray-500">Analyzing your pronunciation with AI...</span>
+                        </div>
                     </div>
                 )}
 

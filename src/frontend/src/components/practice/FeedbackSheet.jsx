@@ -30,6 +30,8 @@ const FeedbackSheet = ({
                 return 'bg-yellow-100 text-yellow-800 border-yellow-300';
             case 'missing':
                 return 'bg-gray-100 text-gray-500 border-gray-300 line-through';
+            case 'extra':
+                return 'bg-orange-100 text-orange-800 border-orange-300 italic';
             default:
                 return 'bg-gray-100 text-gray-800 border-gray-300';
         }
@@ -100,10 +102,10 @@ const FeedbackSheet = ({
                         {/* Feedback Message */}
                         <div className={`
                             text-lg text-center font-medium leading-relaxed px-4 py-3 rounded-xl
-                            ${score >= 90 
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
-                                : score >= 70 
-                                    ? 'bg-amber-50 text-amber-700 border border-amber-200' 
+                            ${score >= 90
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                : score >= 70
+                                    ? 'bg-amber-50 text-amber-700 border border-amber-200'
                                     : 'bg-red-50 text-red-700 border border-red-200'
                             }
                         `}>
@@ -130,13 +132,25 @@ const FeedbackSheet = ({
                                                     ? `Expected: ${item.expected}, You said: ${item.spoken || 'nothing'}`
                                                     : item.status === 'missing'
                                                         ? `Missing word: ${item.expected}`
-                                                        : 'Correct!'
+                                                        : item.status === 'extra'
+                                                            ? `Extra word: "${item.spoken}" is not in the target sentence`
+                                                            : 'Correct!'
                                             }
                                         >
                                             {item.word}
                                             {item.status === 'incorrect' && item.spoken && (
                                                 <span className="text-xs ml-1">
                                                     (said: {item.spoken})
+                                                </span>
+                                            )}
+                                            {item.status === 'extra' && (
+                                                <span className="text-xs ml-1">
+                                                    (extra)
+                                                </span>
+                                            )}
+                                            {item.status === 'missing' && (
+                                                <span className="text-xs ml-1">
+                                                    (said: MISSING)
                                                 </span>
                                             )}
                                         </div>
@@ -160,6 +174,10 @@ const FeedbackSheet = ({
                                     <div className="flex items-center gap-1">
                                         <div className="w-3 h-3 bg-gray-200 border border-gray-400 rounded"></div>
                                         <span className="text-gray-600">Missing</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <div className="w-3 h-3 bg-orange-200 border border-orange-400 rounded"></div>
+                                        <span className="text-gray-600">Extra</span>
                                     </div>
                                 </div>
                             </div>

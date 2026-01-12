@@ -10,6 +10,7 @@ yarn.lock
 .env
 .env.local
 .env.*.local
+src/backend/config/test.env
 
 # IDE
 .vscode/
@@ -55,3 +56,5 @@ uploads/
 test/fixtures/output/
 
 script sql/
+
+
