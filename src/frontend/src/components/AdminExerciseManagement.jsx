@@ -194,9 +194,9 @@ const AdminExerciseManagement = () => {
                                     className="w-full px-3 py-2 border border-slate-600 rounded-md bg-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-brand-tertiary focus:border-brand-tertiary transition-all duration-300"
                                 >
                                     <option value="">Select Type</option>
-                                    <option value="pronunciation">Pronunciation</option>
-                                    <option value="reading">Reading</option>
-                                    <option value="speaking">Speaking</option>
+                                    <option value="word">Word</option>
+                                    <option value="sentence">Sentence</option>
+                                    <option value="conversation">Conversation</option>
                                 </select>
                             </div>
                             <div>
@@ -258,9 +258,9 @@ const AdminExerciseManagement = () => {
                                 className="w-full px-3 py-2 border border-slate-600 rounded-md bg-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-brand-tertiary focus:border-brand-tertiary transition-all duration-300"
                             >
                                 <option value="">All Types</option>
-                                <option value="pronunciation">Pronunciation</option>
-                                <option value="reading">Reading</option>
-                                <option value="speaking">Speaking</option>
+                                <option value="word">Word</option>
+                                <option value="sentence">Sentence</option>
+                                <option value="conversation">Conversation</option>
                             </select>
                         </div>
                         <div className="flex space-x-2">
